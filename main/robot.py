@@ -6,16 +6,15 @@ r = Robot()
 
 def initRobot():
     print "Initializing Robot"
-    
     initMotorControl()
-    
     print "Finished robot initializsation"
+    startEventLoop()
     
-#def startEventLoop():
+def startEventLoop():
+    print "Noting to see here, move along!"
 
-print os.getcwd()
-print dir()
 initRobot()
+
 addMotorInstruction(r.motors, [80, 80], 5)
 addMotorInstruction(r.motors, [-80, -80], 5)
 addMotorInstruction(r.motors, [20, 60], 2)
