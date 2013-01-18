@@ -1,10 +1,10 @@
 from sr_emulator import *
-from robot import r
 import time
 import threading
 
 thread = None
 instructions = []
+r = None
 
 class MotorCotrolThread(threading.Thread):
     def __init__(self):
@@ -18,8 +18,8 @@ class MotorCotrolThread(threading.Thread):
             
             if len(instructions) == 0:
                 print "no instructions"
-            	for m in r.motors:
-            		m.target = 0
+                for m in r.motors:
+                        m.target = 0
             else:
                 index = 0
                 
@@ -28,8 +28,8 @@ class MotorCotrolThread(threading.Thread):
                     m.target = i.speeds[index]
                     index += 1
                     
-	            time.sleep(i.duration)
-	            instructions = instructions[1:len(instructions)]
+                time.sleep(i.duration)
+                instructions = instructions[1:len(instructions)]
 
 class MotorInstruction():
     motors = []
@@ -41,8 +41,9 @@ class MotorInstruction():
         self.speeds = speeds
         self.duration = duration
 
-def initMotorControl():
+def initMotorControl(robot):
     print "Initializing MotorControl"
+    r = robot
     thread = MotorCotrolThread()
     thread.start()
     

@@ -1,12 +1,11 @@
-from sr import *
-from motor_control import *
-import os
+from sr_emulator import *
+import motor_control
 
-r = Robot()
+robot = Robot()
 
 def initRobot():
     print "Initializing Robot"
-    initMotorControl()
+    motor_control.initMotorControl(robot)
     print "Finished robot initializsation"
     startEventLoop()
     
@@ -15,8 +14,8 @@ def startEventLoop():
 
 initRobot()
 
-addMotorInstruction(r.motors, [80, 80], 5)
-addMotorInstruction(r.motors, [-80, -80], 5)
-addMotorInstruction(r.motors, [20, 60], 2)
-addMotorInstruction(r.motors, [60, 20], 2)
-addMotorInstruction(r.motors, [80, 80], 0)
+motor_control.addMotorInstruction(robot.motors, [80, 80], 5)
+motor_control.addMotorInstruction(robot.motors, [-80, -80], 5)
+motor_control.addMotorInstruction(robot.motors, [20, 60], 2)
+motor_control.addMotorInstruction(robot.motors, [60, 20], 2)
+motor_control.addMotorInstruction(robot.motors, [80, 80], 0)
