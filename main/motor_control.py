@@ -3,10 +3,11 @@ import time
 import threading
 
 thread = None
-instructions = []
 r = None
 
 class MotorCotrolThread(threading.Thread):
+    instructions = []
+    
     def __init__(self):
         threading.Thread.__init__(self)
 
