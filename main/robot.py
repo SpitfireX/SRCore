@@ -1,18 +1,20 @@
 from sr_emulator import *
+from logger import log
 import motor_control
 import time
 
 robot = Robot()
 
 def initRobot():
-    print "Initializing Robot"
+    log("Initializing Robot")
     motor_control.initMotorControl(robot)
-    print "Finished robot initializsation"
+    motor_control.startThread()
+    log("Finished robot initializsation")
     
     startEventLoop()
     
 def startEventLoop():
-    print "Noting to see here, move along!"
+    log("Noting to see here, move along!")
 
 initRobot()
 
@@ -20,6 +22,8 @@ initRobot()
 #motor_control.addMotorInstruction(robot.motors, [-80, -80], 5)
 #motor_control.addMotorInstruction(robot.motors, [20, 60], 2)
 #motor_control.addMotorInstruction(robot.motors, [60, 20], 2)
+
 motor_control.addMotorInstruction(robot.motors, [80, 80], 0)
 time.sleep(2)
 motor_control.skipCurrentInstruction()
+motor_control.addMotorInstruction(robot.motors, [-80, -80], 5)
