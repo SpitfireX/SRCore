@@ -18,7 +18,10 @@ class SensorThread(threading.Thread):
     def run(self):
         print "Started SensorThread"
         pedestals={32:Coordinate(2000, 6000), 33:Coordinate(4000, 6000), 34:Coordinate(6000, 6000), 35:Coordinate(2000, 4000), 36:Coordinate(4000, 4000), 37:Coordinate(6000, 4000), 38:Coordinate(2000, 2000), 39:Coordinate(4000, 2000), 40:Coordinate(6000, 2000)}
-        
+       
+       m_info={6:1, 5:2, 4:3, 3:4, 2:5, 1:6, 0:7, 27:1, 26:2, 25:3, 24:4, 23:5, 22:6, 21:7, 14:1, 15:2, 16:3, 17:4, 18:5, 19:6, 20:7, 7:1, 8:2, 9:3, 10:4, 11:5, 12:6, 13:7}
+        #Ja, ich weiß, dass diese Codezeile mehr als unelegant ist, aber ich habs auf andere Weise versucht, und das war noch länger als das hie. :D
+        #Falls irgendjemand hier Vorschläge zu machen hat, einfach durchgeben! ^^
         
         x=y=None #Position des Roboters.
         
@@ -33,7 +36,7 @@ class SensorThread(threading.Thread):
                         else:
                             y=m.centre.dist
                         
-                        x=m.centre.dist #Abstand der Marker: 1 Meter
+                        x=m_info(m.info.code) #Abstand der Marker: 1 Meter -> 
                         x-=ank if m.centre.rot_y<0 else -ank #Aber: die Marker können auch schief aufgehängt sein (ich gehe hier davon aus, dass
                                                                 #bei Verschiebung nach links rot_y negativ ist und bei Verschiebung nach rechts positiv.
                                                                 #unbedingt ausprobieren!!!
@@ -44,7 +47,7 @@ class SensorThread(threading.Thread):
                         else:
                             y=8-m.centre.dist
                         
-                        x=m.centre.dist
+                        x=m_info(m.info.code)
                         x+=ank if m.centre.rot_y<0 else -ank #hier ist es andersherum!
                     
                     elif 7<=m.info.code<=13:
@@ -54,7 +57,7 @@ class SensorThread(threading.Thread):
                         else:
                             x=8-m.centre.dist
                         
-                        y=m.centre.dist
+                        y=m_info(m.info.code)
                         y+=ank if m.centre.rot_y<0  else -ank
                     
                     else:
@@ -64,7 +67,7 @@ class SensorThread(threading.Thread):
                         else:
                             x=m.centre.dist
                         
-                        y=m.centre.dist
+                        y=m_info(m.info.code)
                         y+=ank if m.centre.rot_y<0 else -ank
                     
     
