@@ -1,9 +1,13 @@
 from sr_emulator import *
-import threading
+import threading, math
 from robot import r
 
 changes = []
 
+class Coordinate():
+    def__init__(self, x, y):
+        self.x=x
+        self.y=y
 
 class SensorThread(threading.Thread):
     def __init__(self):
@@ -13,12 +17,56 @@ class SensorThread(threading.Thread):
     
     def run(self):
         print "Started SensorThread"
+        pedestals={32:Coordinate(2000, 6000), 33:Coordinate(4000, 6000), 34:Coordinate(6000, 6000), 35:Coordinate(2000, 4000), 36:Coordinate(4000, 4000), 37:Coordinate(6000, 4000), 38:Coordinate(2000, 2000), 39:Coordinate(4000, 2000), 40:Coordinate(6000, 2000)}
+        
+        
+        x=y=None #Position des Roboters.
         
         while True:
-            checkStuff()
-
-def checkStuff():
-    newToks = r.see()
+            tokens=r.see()
+            for m in markers:
+                if m.info.marker_type==MARKER_ARENA:
+                    if 0<=m.info.code<=6:
+                        if m.centre.rot_y!=0: #(Falls der Marker nicht genau parallel zum Roboter aufgehängt ist)
+                            ank=math.degrees(sin(m.centre.rot_y))*m.centre.dist #Der Roboter bildet mit dem Abstand zum Marker und dem Abstand von der Wand ein Dreieck. Da wir den Winkel zum Marker wissen und den Abstand dorthin, kann das mit Sinus ausgerechnet werden.
+                            y=sqrt(m.centre.dist**2-ank**2) #x wird mit Pythagoras ausgerechnet
+                        else:
+                            y=m.centre.dist
+                        
+                        x=m.centre.dist #Abstand der Marker: 1 Meter
+                        x-=ank if m.centre.rot_y<0 else -ank #Aber: die Marker können auch schief aufgehängt sein (ich gehe hier davon aus, dass
+                                                                #bei Verschiebung nach links rot_y negativ ist und bei Verschiebung nach rechts positiv.
+                                                                #unbedingt ausprobieren!!!
+                    elif 14<=m.info.code<=20:
+                        if m.centre.rot_y!=0:
+                            ank=math.degrees(sin(m.centre.rot_y))*m.centre.dist
+                            y=8-sqrt(m.centre.dist**2-ank**2) #hier 8 m(Breite der Arena) minus der Abstand von der Wand.
+                        else:
+                            y=8-m.centre.dist
+                        
+                        x=m.centre.dist
+                        x+=ank if m.centre.rot_y<0 else -ank #hier ist es andersherum!
+                    
+                    elif 7<=m.info.code<=13:
+                        if m.centre.rot_y!=0:
+                            ank=math.degrees(sin(m.centre.rot_y))*m.centre.dist
+                            x=8-sqrt(m.centre.dist**2-ank**2)
+                        else:
+                            x=8-m.centre.dist
+                        
+                        y=m.centre.dist
+                        y+=ank if m.centre.rot_y<0  else -ank
+                    
+                    else:
+                        if m.centre.rot_y!=0:
+                            ank=math.degrees(sin(m.centre.rot_y))*m.centre.dist
+                            x=sqrt(m.centre.dist**2-ank**2)
+                        else:
+                            x=m.centre.dist
+                        
+                        y=m.centre.dist
+                        y+=ank if m.centre.rot_y<0 else -ank
+                    
     
     for token in newToks:
         for c in changes:
