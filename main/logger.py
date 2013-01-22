@@ -12,8 +12,4 @@ def log(message):
     
     print timestamp, message
     
-    logfile=open("log.txt", "a"); # Nur ein Vorschlag, um den Log auch in einer Datei auf dem USB-Stick
-    logfile.write(timestamp+" "+message) #zu haben. Könnte nützlich sein, um später Fehler zu checken o.ä.
-    logfile.close() #ihr könnt das aber auch auskommentieren, wenn ihr wollt. -Max
-    
     thread_lock.release()
