@@ -81,7 +81,9 @@ def initMotorControl(robot):
     running = False
     
 def startThread():
-    thread.start()
+	global running
+	running = True
+	thread.start()
 
 def stopThread():
     global running
