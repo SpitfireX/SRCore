@@ -29,8 +29,8 @@ class SensorThread(threading.Thread):
             tokens=r.see()
             for m in markers:
                 if m.info.marker_type==MARKER_ARENA:
-                    if 0<=m.info.code<=6:
-                        if m.centre.rot_y!=0: #(Falls der Marker nicht genau parallel zum Roboter aufgehängt ist)
+                    if 0 <= m.info.code <= 6:
+                        if m.centre.rot_y != 0: #(Falls der Marker nicht genau parallel zum Roboter aufgehängt ist)
                             ank=math.degrees(sin(m.centre.rot_y))*m.centre.dist #Der Roboter bildet mit dem Abstand zum Marker und dem Abstand von der Wand ein Dreieck. Da wir den Winkel zum Marker wissen und den Abstand dorthin, kann das mit Sinus ausgerechnet werden.
                             y=sqrt(m.centre.dist**2-ank**2) #x wird mit Pythagoras ausgerechnet
                         else:
@@ -40,18 +40,18 @@ class SensorThread(threading.Thread):
                         x-=ank if m.centre.rot_y<0 else -ank #Aber: die Marker können auch schief aufgehängt sein (ich gehe hier davon aus, dass
                                                                 #bei Verschiebung nach links rot_y negativ ist und bei Verschiebung nach rechts positiv.
                                                                 #unbedingt ausprobieren!!!
-                    elif 14<=m.info.code<=20:
-                        if m.centre.rot_y!=0:
-                            ank=math.degrees(sin(m.centre.rot_y))*m.centre.dist
-                            y=8-sqrt(m.centre.dist**2-ank**2) #hier 8 m(Breite der Arena) minus der Abstand von der Wand.
+                    elif 14 <= m.info.code <= 20:
+                        if m.centre.rot_y != 0:
+                            ank = math.degrees(sin(m.centre.rot_y))*m.centre.dist
+                            y = 8-sqrt(m.centre.dist**2-ank**2) #hier 8 m(Breite der Arena) minus der Abstand von der Wand.
                         else:
                             y=8-m.centre.dist
                         
                         x=m_info(m.info.code)
-                        x+=ank if m.centre.rot_y<0 else -ank #hier ist es andersherum!
+                        x+=ank if m.centre.rot_y < 0 else -ank #hier ist es andersherum!
                     
-                    elif 7<=m.info.code<=13:
-                        if m.centre.rot_y!=0:
+                    elif 7 <= m.info.code <= 13:
+                        if m.centre.rot_y != 0:
                             ank=math.degrees(sin(m.centre.rot_y))*m.centre.dist
                             x=8-sqrt(m.centre.dist**2-ank**2)
                         else:
