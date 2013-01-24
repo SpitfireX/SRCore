@@ -12,7 +12,7 @@ def calibrate():
 		
 		markers2 = R.see()
 		
-		gefahren = markers[0].centre.dist - markers2[0].centre.dist
+		gefahren = markers[0].dist - markers2[0].dist
 		print "Roboter fährt pro Sekunde mit", pwr, "Prozent Motorleistung", gefahren, "Meter"
 		v.append(gefahren)
 	
