@@ -1,6 +1,7 @@
 from sr_emulator import *
-import threading, math
-from robot import r
+from logger import log
+import threading
+import math
 
 changes = []
 
@@ -9,14 +10,16 @@ class Coordinate():
         self.x = x
         self.y = y
 
-class SensorThread(threading.Thread):
+
+class MarkerThread(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
-        self.tokens = []
-        self.inputs = []
 
     def run(self):
-        print "Started SensorThread"
+        log("Started MarkerThread")
+
+        global r
+        global changes
 
         pedestals = {32:Coordinate(2000, 6000),
                      33:Coordinate(4000, 6000),
@@ -83,16 +86,36 @@ class SensorThread(threading.Thread):
                         y += ank if m.centre.rot_y < 0 else -ank
 
 
-    for token in newToks:
-        for c in changes:
-            if type(c) == Marker and token.info.code == c.info.code:
-                changes.remove(c)
-                changes.append(token)
-                break
+            for marker in markers:
+                for c in changes:
+                    if type(c) == Marker and marker.info.code == c.info.code:
+                        changes.remove(c)
+                        changes.append(marker)
+                        break
 
-    # sensorIns = r.io[0].input
+
+class JointIOThread(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+
+    def run(self):
+        log("Started JointIOThread")
+
+        global r
+        global changes
+        while True:
+            changes.append(r.io[0].input)
+
+
+def initSensorControl(robot):
+    global r
+    r = robot
+
+    markerThread = MarkerThread()
+    ioThread = JointIOThread()
 
 def getChanges():
+    global changes
     ret = changes
     changes = []
 
