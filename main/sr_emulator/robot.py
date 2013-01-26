@@ -1,5 +1,6 @@
 from motor import Motor
 from io import IO
+from vision import *
 
 class Robot():
 	motors = [Motor() for i in range(2)]
@@ -7,4 +8,6 @@ class Robot():
 	servos = []
 	
 	power = None
-	vision = None
+	
+	def see(self):
+		return Vision().see()
