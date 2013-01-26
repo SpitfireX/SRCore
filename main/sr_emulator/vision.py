@@ -19,16 +19,16 @@ class Vision():
 		else:
 			global inf
 			if i == 1:
-				inf = MarkerInfo(random.randint(0, 27), self.MARKER_ARENA)
+				inf = MarkerInfo(random.randint(0, 27), MARKER_ARENA)
 		
 			elif i == 2:
-				inf = MarkerInfo(random.randint(28, 31), MARKER_ARENA)
+				inf = MarkerInfo(random.randint(28, 31), MARKER_ROBOT)
 		
 			elif i == 3:
-				inf = MarkerInfo(random.randint(32, 40), MARKER_ARENA)
+				inf = MarkerInfo(random.randint(32, 40), MARKER_PEDESTAL)
 		
 			elif i == 4:
-				inf = MarkerInfo(random.randint(41, 64), MARKER_ARENA)
+				inf = MarkerInfo(random.randint(41, 64), MARKER_TOKEN)
 				
 			marker = Marker(inf, dist, random.randint(-180, 180))
 			return [marker]
