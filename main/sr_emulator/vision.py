@@ -4,11 +4,10 @@ random.seed()
 
   
 class Vision():
-	MARKER_ARENA, MARKER_ROBOT, MARKER_PEDESTAL, MARKER_TOKEN = range(0,4)
-	Marker=collections.namedtuple("MarkerBasis", "info dist rot_y");
-	MarkerInfo=collections.namedtuple("MarkerInfo", "code marker_type");	
-	
 	def see(self):
+		MARKER_ARENA, MARKER_ROBOT, MARKER_PEDESTAL, MARKER_TOKEN = range(0,4)
+		Marker=collections.namedtuple("MarkerBasis", "info dist rot_y");
+		MarkerInfo=collections.namedtuple("MarkerInfo", "code marker_type");	
 		i=random.randint(0, 5)
 		dist=random.randint(0, 8)
 		
@@ -17,18 +16,18 @@ class Vision():
 		
 		else:
 			if i == 1:
-				inf = self.MarkerInfo(random.randint(0, 27), MARKER_ARENA)
+				inf = MarkerInfo(random.randint(0, 27), self.MARKER_ARENA)
 		
 			elif i == 2:
-				inf = self.MarkerInfo(random.randint(28, 31), MARKER_ARENA)
+				inf = MarkerInfo(random.randint(28, 31), MARKER_ARENA)
 		
 			elif i == 3:
-				inf = self.MarkerInfo(random.randint(32, 40), MARKER_ARENA)
+				inf = MarkerInfo(random.randint(32, 40), MARKER_ARENA)
 		
 			elif i == 4:
-				inf = self.MarkerInfo(random.randint(41, 64), MARKER_ARENA)
+				inf = MarkerInfo(random.randint(41, 64), MARKER_ARENA)
 				
-			marker = self.Marker(inf, dist, random.randint(-180, 180))
+			marker = Marker(inf, dist, random.randint(-180, 180))
 			return [marker]
 	
 		time.sleep(0.5)
