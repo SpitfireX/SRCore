@@ -16,7 +16,7 @@ class Vision():
 			return []
 		
 		else:
-			elif i == 1:
+			if i == 1:
 				inf = MarkerInfo(random.randint(0, 27), MARKER_ARENA)
 		
 			elif i == 2:
