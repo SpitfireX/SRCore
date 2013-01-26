@@ -2,11 +2,11 @@ import random, time, collections
 
 random.seed()
 
-MARKER_ARENA, MARKER_ROBOT, MARKER_PEDESTAL, MARKER_TOKEN = range(0,4)
-Marker=collections.namedspace("MarkerBasis", "info dist rot_y");
-MarkerInfo=collections.namedspace("MarkerInfo", "code marker_type");
   
 class Vision():
+	MARKER_ARENA, MARKER_ROBOT, MARKER_PEDESTAL, MARKER_TOKEN = range(0,4)
+	Marker=collections.namedspace("MarkerBasis", "info dist rot_y");
+	MarkerInfo=collections.namedspace("MarkerInfo", "code marker_type");	
 	
 	def see(self):
 		i=random.randint(0, 5)
