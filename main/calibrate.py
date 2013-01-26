@@ -2,7 +2,7 @@ from sr import *
 import time
 
 def calibrate():
-  v=()
+  v=[]
 	for pwr in range(10, 80, 10):
 		t1 = time.time()
 		duration=1
