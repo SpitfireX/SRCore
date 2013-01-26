@@ -17,18 +17,18 @@ class Vision():
 		
 		else:
 			if i == 1:
-				inf = MarkerInfo(random.randint(0, 27), MARKER_ARENA)
+				inf = self.MarkerInfo(random.randint(0, 27), MARKER_ARENA)
 		
 			elif i == 2:
-				inf = MarkerInfo(random.randint(28, 31), MARKER_ARENA)
+				inf = self.MarkerInfo(random.randint(28, 31), MARKER_ARENA)
 		
 			elif i == 3:
-				inf = MarkerInfo(random.randint(32, 40), MARKER_ARENA)
+				inf = self.MarkerInfo(random.randint(32, 40), MARKER_ARENA)
 		
 			elif i == 4:
-				inf = MarkerInfo(random.randint(41, 64), MARKER_ARENA)
+				inf = self.MarkerInfo(random.randint(41, 64), MARKER_ARENA)
 				
-			marker = Marker(inf, dist, random.randint(-180, 180))
+			marker = self.Marker(inf, dist, random.randint(-180, 180))
 			return [marker]
 	
 		time.sleep(0.5)
