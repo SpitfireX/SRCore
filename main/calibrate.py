@@ -3,6 +3,7 @@ import time
 
 def calibrate():
   v=[]
+  R=Robot()
 	for pwr in range(10, 80, 10):
 		t1 = time.time()
 		markers = R.see()
