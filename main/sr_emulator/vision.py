@@ -2,9 +2,7 @@ import random, time, collections
 
 random.seed()
 
-  
 class Vision():
-	
 	def see(self):
 		
 		MARKER_ARENA, MARKER_ROBOT, MARKER_PEDESTAL, MARKER_TOKEN = range(0,4)

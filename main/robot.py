@@ -1,13 +1,17 @@
 from sr_emulator import *
 from logger import log
-import motor_control
+import motor_control, sensor_control
 import time
 
 robot = Robot()
 
 def initRobot():
     log("Initializing Robot")
+    
+    sensor_control.initSensorControl(robot)
     motor_control.initMotorControl(robot)
+    
+    sensor_control.startThread()
     motor_control.startThread()
     log("Finished robot initializsation")
     
