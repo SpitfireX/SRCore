@@ -1,15 +1,15 @@
 import os, shutil, zipfile
 
-def getCodeFiles(path, list, recursive):
-    for file in os.listdir(path):
-        full = os.path.join(path, file)
+def getCodeFiles(path, filelist, recursive):
+    for f in os.listdir(path):
+        full = os.path.join(path, f)
         rel = full.split(code_path)[1]
         
-        if file.endswith(".py"):
-            list.append([full, rel, file])
+        if f.endswith(".py"):
+            filelist.append([full, rel, f])
         elif recursive:
             if os.path.isdir(full):
-                getCodeFiles(full, list, recursive)
+                getCodeFiles(full, filelist, recursive)
 
 def prepCodeFiles(files, tempdir, string, replacement):
     output = []
@@ -21,7 +21,7 @@ def prepCodeFiles(files, tempdir, string, replacement):
         subdir = subdir.strip(os.sep)
         subdir = os.path.join(tempdir, subdir)
         if not os.path.exists(subdir):
-        	os.mkdir(subdir)
+            os.mkdir(subdir)
         
         temp_file = open(temp_path, "a")
         for line in open(files[i][0]):
@@ -35,22 +35,22 @@ def prepCodeFiles(files, tempdir, string, replacement):
     return output
 
 def packFiles(output_path, file_paths, files):
-	zip = zipfile.ZipFile(output_path, "a")
-	for i in range(len(files)):
-		zip.write(files[i], "user"+file_paths[i][3]+file_paths[i][2])
-	zip.testzip()
-	zip.close()
+    zip = zipfile.ZipFile(output_path, "a")
+    for i in range(len(files)):
+        zip.write(files[i], "user"+file_paths[i][3]+file_paths[i][2])
+    zip.testzip()
+    zip.close()
 
 def cleanup(tempfiles):
-	for f in tempfiles:
-		os.remove(f)
+    for f in tempfiles:
+        os.remove(f)
 
 def cleanupFolders(path):
-	for f in os.listdir(path):
-		temp = os.path.join(path, f)
-		if os.path.isdir(temp):
-			cleanupFolders(temp)
-			os.rmdir(temp)
+    for f in os.listdir(path):
+        temp = os.path.join(path, f)
+        if os.path.isdir(temp):
+            cleanupFolders(temp)
+            os.rmdir(temp)
 
 packer_path = os.path.dirname(__file__) #path of the directory containing packer.py
 base_path = os.path.dirname(packer_path) #path of the base directory
