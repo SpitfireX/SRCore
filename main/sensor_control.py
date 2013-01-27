@@ -19,6 +19,7 @@ class MarkerThread(threading.Thread):
         log("Started MarkerThread")
 
         while True:
+            global r
             markers = r.see()
 
             for marker in markers:
