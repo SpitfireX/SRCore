@@ -1,4 +1,5 @@
 from sr import *
+import motor_control
 import time
 
 def calibrate():
@@ -7,10 +8,7 @@ def calibrate():
 	for pwr in range(10, 80, 10):
 		t1 = time.time()
 		markers = R.see()
-		R.motors[0].target = pwr
-		R.motors[1].target = pwr
-		R.motors[0].target = 0
-		R.motors[1].target = 0
+		motor_control.addMotorInstruction(R.motors, [pwr, pwr], 1)
 		t2 = time.time()
 		markers2 = R.see()
 		
