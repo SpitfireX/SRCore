@@ -8,10 +8,10 @@ robot = Robot()
 def initRobot():
     log("Initializing Robot")
     
-    #sensor_control.initSensorControl(robot)
+    sensor_control.initSensorControl(robot)
     motor_control.initMotorControl(robot)
     
-    #sensor_control.startThread()
+    sensor_control.startThread()
     motor_control.startThread()
     log("Finished robot initializsation")
     
