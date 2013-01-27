@@ -44,18 +44,18 @@ class JointIOThread(threading.Thread):
 
 def initSensorControl(robot):
     global r
-    r = Robot()
-    
+    r = robot
+
     global markerThread
     global ioThread
-    
+
     markerThread = MarkerThread()
     ioThread = JointIOThread()
 
 def startThread():
     global markerThread
     global ioThread
-    
+
     markerThread.start()
     ioThread.start()
 
