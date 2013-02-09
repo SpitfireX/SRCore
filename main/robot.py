@@ -1,4 +1,4 @@
-from sr import *
+from sr_emulator import *
 from logger import log
 import motor_control, sensor_control, calibrate2, logic_control
 import time
