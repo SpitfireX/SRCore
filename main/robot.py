@@ -1,6 +1,6 @@
 from sr import *
 from logger import log
-import motor_control, sensor_control, calibrate2
+import motor_control, sensor_control, calibrate2, logic_control
 import time
 
 robot = Robot()
@@ -21,7 +21,8 @@ def startEventLoop():
     running = True
     
     while running:
-        events = 
+        events = sensor_control.getChanges()
+        logic_control.processChanges(events)
         
 def stopEventLoop():
     global running

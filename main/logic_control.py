@@ -1,0 +1,2 @@
+def processChanges(changes):
+    #dummy
