@@ -1,4 +1,4 @@
-from sr_emulator import *
+from sr import *
 from logger import log
 import motor_control, sensor_control, calibrate2
 import time
@@ -18,17 +18,17 @@ def initRobot():
     startEventLoop()
     
 def startEventLoop():
-    log("Noting to see here, move along!")
+    log("Nothing to see here, move along!")
 
 initRobot()
 
-#motor_control.addMotorInstruction(robot.motors, [80, 80], 5)
-#motor_control.addMotorInstruction(robot.motors, [-80, -80], 5)
-#motor_control.addMotorInstruction(robot.motors, [20, 60], 2)
-#motor_control.addMotorInstruction(robot.motors, [60, 20], 2)
+while True:
+    log("waiting for input...")
+	wait_for(robot.io[0].input[0].query.d == 1 or robot.io[0].input[1].query.d == 1)
 
-#motor_control.addMotorInstruction(robot.motors, [80, 80], 0)
-#time.sleep(2)
-#motor_control.skipCurrentInstruction()
-#motor_control.addMotorInstruction(robot.motors, [-80, -80], 5)
-calibrate2.calibrate2(robot)
+	log("started program")
+
+        if len(motor_control.instructions) == 0:
+            for i in range(10, 110, 10):
+                log("Adding instruction")
+                motor_control.addMotorInstruction(robot.motors, [i, i], 5)
