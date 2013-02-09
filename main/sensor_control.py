@@ -5,12 +5,6 @@ import math
 
 changes = []
 
-class Coordinate():
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
-
 class MarkerThread(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
@@ -40,10 +34,10 @@ class JointIOThread(threading.Thread):
         global r
         global changes
         ins = r.io[0].input
-        for i in range(0, length(ins)):
+        for i in range(0, len(ins)):
             digIn = ins[i].d
             samePins = filter(lambda c: c[0] == i, changes)
-            if length(samePins) == 0:
+            if len(samePins) == 0:
                 changes.append((i, digIn))
             elif samePins[0][1] != digIn:
                 changes.remove(samePins[0])
