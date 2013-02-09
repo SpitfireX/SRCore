@@ -7,16 +7,16 @@ robot = Robot()
 
 def initRobot():
     log("Initializing Robot")
-    
+
     #sensor_control.initSensorControl(robot)
     motor_control.initMotorControl(robot)
-    
+
     #sensor_control.startThread()
     motor_control.startThread()
     log("Finished robot initializsation")
-    
+
     startEventLoop()
-    
+
 def startEventLoop():
     log("Nothing to see here, move along!")
 
@@ -24,11 +24,11 @@ initRobot()
 
 while True:
     log("waiting for input...")
-	wait_for(robot.io[0].input[0].query.d == 1 or robot.io[0].input[1].query.d == 1)
+	  wait_for(robot.io[0].input[0].query.d == 1 or robot.io[0].input[1].query.d == 1)
 
-	log("started program")
+	  log("started program")
 
-        if len(motor_control.instructions) == 0:
-            for i in range(10, 110, 10):
-                log("Adding instruction")
-                motor_control.addMotorInstruction(robot.motors, [i, i], 5)
+    if len(motor_control.instructions) == 0:
+        for i in range(10, 110, 10):
+            log("Adding instruction")
+            motor_control.addMotorInstruction(robot.motors, [i, i], 5)
