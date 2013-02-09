@@ -15,13 +15,8 @@ class MarkerThread(threading.Thread):
         while True:
             global r
             markers = r.see()
+            changes.extend(markers)
 
-            for marker in markers:
-                for c in changes:
-                    if type(c) == Marker and marker.info.code == c.info.code:
-                        changes.remove(c)
-                        changes.append(marker)
-                        break
 
 
 class JointIOThread(threading.Thread):
@@ -31,17 +26,21 @@ class JointIOThread(threading.Thread):
     def run(self):
         log("Started JointIOThread")
 
+
         global r
         global changes
-        ins = r.io[0].input
-        for i in range(0, len(ins)):
-            digIn = ins[i].d
-            samePins = filter(lambda c: c[0] == i, changes)
-            if len(samePins) == 0:
-                changes.append((i, digIn))
-            elif samePins[0][1] != digIn:
-                changes.remove(samePins[0])
-                changes.append((i, digIn))
+        localChanges = []
+        for i in r.io[0].input:
+            changes.append(i.d)
+        while True:
+            ins = r.io[0].input
+            for i in range(0, len(ins)):
+                digIn = ins[i].d
+                oldIn = filter(lambda c: c[0] == i, localChanges)[0]
+                if digIn != oldIn:
+                    localChanges.remove((i, oldIn))
+                    localChanges.append((i, digIn))
+                    changes.append((i, digIn))
 
 
 def initSensorControl(robot):
