@@ -31,6 +31,7 @@ class JointIOThread(threading.Thread):
         global changes
         localChanges = []
         for i in r.io[0].input:
+            localChanges.append(i.d)
             changes.append(i.d)
         while True:
             ins = r.io[0].input
