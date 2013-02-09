@@ -15,7 +15,8 @@ class MarkerThread(threading.Thread):
         while True:
             global r
             markers = r.see()
-            changes.extend(markers)
+            for m in markers:
+                changes.append(Event(time.time(), "Marker", m)
 
 
 
@@ -30,18 +31,27 @@ class JointIOThread(threading.Thread):
         global r
         global changes
         localChanges = []
-        for i in r.io[0].input:
-            localChanges.append(i.d)
-            changes.append(i.d)
+        initial = r.io[0].input
+        for i in len(initial):
+            event = Event(time.time(), "Pin", (i, initial[i].d))
+            localChanges.append(event)
+            changes.append(event)
         while True:
             ins = r.io[0].input
             for i in range(0, len(ins)):
-                digIn = ins[i].d
-                oldIn = filter(lambda c: c[0] == i, localChanges)[0]
+                event = Event(time.time(), "Pin", (i, ins[i].d))
+                oldIn = filter(lambda e: e.value[0] == i, localChanges)[0]
                 if digIn != oldIn:
-                    localChanges.remove((i, oldIn))
-                    localChanges.append((i, digIn))
-                    changes.append((i, digIn))
+                    localChanges.remove(oldIn)
+                    localChanges.append(event)
+                    changes.append(event)
+
+
+class Event():
+    def __init__(self, timestamp, eventType, eventValue):
+        self.timestamp = timestamp
+        self.eventType = eventType
+        self.eventValue = eventValue
 
 
 def initSensorControl(robot):
