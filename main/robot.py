@@ -24,7 +24,7 @@ initRobot()
 
 while True:
     log("waiting for input...")
-	wait_for(robot.io[0].input[0].query.d == 1 or robot.io[0].input[1].query.d == 1)
+	wait_for(robot.io[0].input[0].query.d == 1, robot.io[0].input[1].query.d == 1)
 
 	log("started program")
 
