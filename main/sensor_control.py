@@ -39,8 +39,15 @@ class JointIOThread(threading.Thread):
 
         global r
         global changes
-        while True:
-            changes.append(r.io[0].input)
+        ins = r.io[0].input
+        for i in range(0, length(ins)):
+            digIn = ins[i].d
+            samePins = filter(lambda c: c[0] == i, changes)
+            if length(samePins) == 0:
+                changes.append((i, digIn))
+            elif samePins[0][1] != digIn:
+                changes.remove(samePins[0])
+                changes.append((i, digIn))
 
 
 def initSensorControl(robot):
