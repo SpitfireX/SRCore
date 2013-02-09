@@ -22,7 +22,7 @@ def startEventLoop():
     
     while running:
         events = sensor_control.getChanges()
-        logic_control.processChanges(events)
+        logic_control.processEvents(events)
         
 def stopEventLoop():
     global running
