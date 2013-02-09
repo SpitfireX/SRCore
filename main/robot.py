@@ -4,6 +4,7 @@ import motor_control, sensor_control, calibrate2
 import time
 
 robot = Robot()
+running = False
 
 def initRobot():
     log("Initializing Robot")
@@ -15,20 +16,16 @@ def initRobot():
     motor_control.startThread()
     log("Finished robot initializsation")
     
-    startEventLoop()
-    
 def startEventLoop():
-    log("Nothing to see here, move along!")
+    global running
+    running = True
+    
+    while running:
+        events = 
+        
+def stopEventLoop():
+    global running
+    running = False
 
 initRobot()
-
-while True:
-    log("waiting for input...")
-	wait_for(robot.io[0].input[0].query.d == 1, robot.io[0].input[1].query.d == 1)
-
-	log("started program")
-
-        if len(motor_control.instructions) == 0:
-            for i in range(10, 110, 10):
-                log("Adding instruction")
-                motor_control.addMotorInstruction(robot.motors, [i, i], 5)
+startEventLoop()

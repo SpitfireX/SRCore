@@ -5,12 +5,6 @@ import math
 
 changes = []
 
-class Coordinate():
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
-
 class MarkerThread(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
