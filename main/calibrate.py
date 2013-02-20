@@ -24,7 +24,8 @@ def calibrate():
 			break
 		
 		motor_control.addMotorInstruction(R.motors, [-pwr, -pwr], 1)
-		
+	
+	print "Kalibrierung startet auf Knopfdruck."	
 	wait_for(R.io[0].input[0].query.d == 1, R.io[0].input[1].query.d ==1)
 	
 	for pwr in range(10, 80, 10):
