@@ -85,8 +85,26 @@ def initMotorControl(robot):
         global w
         log("Starting calibration")
         v, w = calibrate()
+
+def checkCalibrating():
+    global r
+    print "Calibrate robot? (Decide in 5 seconds)"
+    duration = 5
+    firsttime = time.time()
+    while duration > 0:
+        duration -= time.time() - firsttime
+        pin0 = r.io[0].input[0].d
+        pin1 = r.io[0].input[1].d
+        if pin0 == 1 or pin1 == 1:
+            global v
+            global w
+            v, w=calibrate()
+            break
+        
+
     
 def startThread():
+    checkCalibrating()
     global running
     running = True
     thread.start()
