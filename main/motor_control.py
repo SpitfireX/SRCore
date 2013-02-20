@@ -96,3 +96,7 @@ def addMotorInstruction(motors, speeds, duration = 0):
 def skipCurrentInstruction():
     log ("Attempting to skip instruction")
     thread.skip()
+
+def getCurrentInstruction():
+    global cI
+    return cI.speeds, cI.duration

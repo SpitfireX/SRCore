@@ -1,4 +1,4 @@
-from sr import *
+from sr_emulator import *
 import motor_control
 
 def calibrate():
