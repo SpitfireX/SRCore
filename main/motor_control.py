@@ -80,6 +80,12 @@ def initMotorControl(robot):
     global running
     running = False
     
+    if calibratingEnabled:
+        global v
+        global w
+        log("Starting calibration")
+        v, w = calibrate()
+    
 def startThread():
     global running
     running = True
@@ -100,3 +106,13 @@ def skipCurrentInstruction():
 def getCurrentInstruction():
     global cI
     return cI.speeds, cI.duration
+
+def addAngleInstruction(angle):
+    global w
+    for i in len(w):
+        if w[i] < angle < w[i+1] or w[i]==angle:
+            speed = (i+1)*10 if angle > 0 else -(i+1)*10
+            mI = MotorInstruction(R.motors, [speed, -speed], 1)
+            instructions.append(mI)
+             
+        
