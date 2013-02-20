@@ -2,6 +2,19 @@ def computeChanges():
 
     global r
     global changes
+    global markers
+    global ios
+    
+    markers=[]
+    ios=[]
+    
+    for e in sensor_control.getChanges():
+        if e.eventType == "Marker":
+            markers.append(e.eventValue)
+        else:
+            ios.append(e)
+    
+    r_marker=[]
 
     pedestals = {32:Coordinate(2000, 6000),
                 33:Coordinate(4000, 6000),
@@ -72,15 +85,25 @@ def computeChanges():
         elif m.info.marker_type == MARKER_ROBOT:
             global r_marker
             if len(r_marker) == 0:
-                r_marker=[m.info.code, m.vertices]
+                r_marker=[m.info.code, m.dist]
                     
             else:
                 if m.info.code == r_marker[0]:
-                    distsOld = [r_markers[1][i].length for i in range(4)]
-                    distsNew = [m.vertices[i].length for i in range(4)]
+                    distsOld = r_markers[1]
+                    distsNew = m.dist
                             
-                    changes = [distsNew[i]-distsOld[i] for i in range(4)]
+                    change = distsNew-distsOld
                             
-                    for i in changes:
-                        if i>0:
-                            continue
+                    if change > 0:
+                        global r_marker
+                        r_marker=[]
+                        continue
+                    
+                    else:
+                        pointdist=math.degrees(tan(m.rot_y)*m.dist)
+                        if pointdist <= 50:
+                            speeds, duration=motor_control.getCurrentInstruction()
+                            skipCurrentInstruction()
+                            angle = -m.rot_y - 10 if m.rot_y > 0 else -m.rot_y +10 
+                            addAngleInstruction(angle)
+                            addMotorInstruction(r.motors, speeds, duration)
