@@ -16,6 +16,10 @@ class MotorCotrolThread(threading.Thread):
     def run(self):
         log("Started MotorControl Thread")
 
+        global v
+        global w
+        v, w = calibrate(r)
+        
         global running
         running = True
 
@@ -80,10 +84,6 @@ def initMotorControl(robot):
 
     global running
     running = False
-
-    global v
-    global w
-    v, w = calibrate(r)
     # checkCalibrating()
 
 def checkCalibrating():
@@ -100,8 +100,6 @@ def checkCalibrating():
             global w
             v, w=calibrate(r)
             break
-
-
 
 def startThread():
     global running
