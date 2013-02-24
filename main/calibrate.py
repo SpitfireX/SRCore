@@ -74,6 +74,10 @@ def addMotorInstruction(self, motors, speeds, duration):
                     break
 
                 lasttime = now
+        
+        for i in range(len(motors)):
+        	motors[i].target=0
+        	time.sleep(0.1)
 
 if __name__ == '__main__':
 	v, w=calibrate()
