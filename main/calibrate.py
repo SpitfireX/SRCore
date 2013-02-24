@@ -51,7 +51,7 @@ def calibrate(r):
 
 	return v, w
 
-def addMotorInstruction(self, motors, speeds, duration):
+def addMotorInstruction(motors, speeds, duration):
 	for i in range(len(motors)):
 		motors[i].target=speeds[i]
 	
