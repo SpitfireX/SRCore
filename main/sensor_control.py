@@ -5,6 +5,7 @@ import math
 
 changes = []
 
+
 class MarkerThread(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
@@ -16,8 +17,7 @@ class MarkerThread(threading.Thread):
             global r
             markers = r.see()
             for m in markers:
-                changes.append(Event(time.time(), "Marker", m)
-
+                changes.append(Event(time.time(), "Marker", m))
 
 
 class JointIOThread(threading.Thread):
