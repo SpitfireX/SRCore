@@ -104,7 +104,6 @@ def checkCalibrating():
 
 
 def startThread():
-    checkCalibrating()
     global running
     running = True
     thread.start()
@@ -132,5 +131,3 @@ def addAngleInstruction(angle):
             speed = (i+1)*10 if angle > 0 else -(i+1)*10
             mI = MotorInstruction(R.motors, [speed, -speed], 1)
             instructions.append(mI)
-
-
