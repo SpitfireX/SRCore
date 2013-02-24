@@ -2,9 +2,9 @@ from sr_emulator import *
 from logger import log
 
 def processEvents(events):
-    log("Events: " + str(len(events)))
+    # log("Events: " + str(len(events)))
     for event in events:
-        if type(event) == Marker:
+        if event.eventType == "Marker":
             log("Marker: " + str(event))
-        elif isinstance(tuple):
+        elif event.eventType == "Pin":
             log(str(event))

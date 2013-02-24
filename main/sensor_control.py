@@ -1,7 +1,7 @@
 from sr_emulator import *
 from logger import log
 import threading
-import math
+import time
 
 changes = []
 
@@ -32,15 +32,16 @@ class JointIOThread(threading.Thread):
         global changes
         localChanges = []
         initial = r.io[0].input
-        for i in len(initial):
+        for i in range(len(initial)):
             event = Event(time.time(), "Pin", (i, initial[i].d))
             localChanges.append(event)
             changes.append(event)
         while True:
             ins = r.io[0].input
             for i in range(0, len(ins)):
-                event = Event(time.time(), "Pin", (i, ins[i].d))
-                oldIn = filter(lambda e: e.value[0] == i, localChanges)[0]
+                digIn = ins[i].d
+                event = Event(time.time(), "Pin", (i, digIn))
+                oldIn = filter(lambda e: e.eventValue[0] == i, localChanges)[0]
                 if digIn != oldIn:
                     localChanges.remove(oldIn)
                     localChanges.append(event)
