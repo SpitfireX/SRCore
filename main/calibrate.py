@@ -4,8 +4,9 @@ import motor_control
 def calibrate(r):
 	v=[]
 	w=[]
-
-	for pwr in range(10, 80, 10):
+        pwr=10
+        
+	while True:
 		markers = r.see()
 		motor_control.addMotorInstruction(r.motors, [pwr, pwr], 1)
 		markers2 = r.see()
@@ -16,10 +17,17 @@ def calibrate(r):
 			v.append(gefahren)
 
 		else:
-			print "Bitte den roboter richtig ausrichten!"
-			break
+                        print "Bitte den roboter richtig ausrichten!"
+                        wait_for(r.io[0].input[0].query.d == 1, r.io[0].input[1].query.d == 1)
+                        continue
 
 		motor_control.addMotorInstruction(r.motors, [-pwr, -pwr], 1)
+
+		if pwr == 80:
+                        break
+
+                else:
+                        pwr+=10
 
 	print "Weitere Kalibrierung startet auf Knopfdruck."
 	wait_for(r.io[0].input[0].query.d == 1, r.io[0].input[1].query.d ==1)
