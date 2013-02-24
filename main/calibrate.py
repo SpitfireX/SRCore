@@ -1,11 +1,12 @@
 from sr_emulator import *
+from logger import log
 import time
 
 def calibrate(r):
 	v=[]
 	w=[]
         pwr=10
-        
+
 	while True:
 		markers = r.see()
 		addMotorInstruction(r.motors, [pwr, pwr], 1)
@@ -54,7 +55,7 @@ def calibrate(r):
 def addMotorInstruction(motors, speeds, duration):
 	for i in range(len(motors)):
 		motors[i].target=speeds[i]
-	
+
 	lasttime = time.time()
 
         if duration > 0:
