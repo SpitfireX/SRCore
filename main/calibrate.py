@@ -1,5 +1,5 @@
 from sr_emulator import *
-import motor_control
+import time
 
 def calibrate(r):
 	v=[]
@@ -8,7 +8,7 @@ def calibrate(r):
         
 	while True:
 		markers = r.see()
-		motor_control.addMotorInstruction(r.motors, [pwr, pwr], 1)
+		addMotorInstruction(r.motors, [pwr, pwr], 1)
 		markers2 = r.see()
 
 		if len(markers) != 0 and len(markers2) != 0:
@@ -21,7 +21,7 @@ def calibrate(r):
                         wait_for(r.io[0].input[0].query.d == 1, r.io[0].input[1].query.d == 1)
                         continue
 
-		motor_control.addMotorInstruction(r.motors, [-pwr, -pwr], 1)
+		addMotorInstruction(r.motors, [-pwr, -pwr], 1)
 
 		if pwr == 80:
                         break
@@ -34,7 +34,7 @@ def calibrate(r):
 
 	for pwr in range(10, 80, 10):
 		markers = r.see()
-		motor_control.addMotorInstruction(r.motors, [pwr, -pwr], 1)
+		addMotorInstruction(r.motors, [pwr, -pwr], 1)
 		markers2 = r.see()
 
 		if len(markers) != 0 and len(markers2) != 0:
@@ -50,6 +50,24 @@ def calibrate(r):
 		wait_for(r.io[0].input[0].query.d == 1, r.io[0].input[1].query.d == 1)
 
 	return v, w
+
+def addMotorInstruction(self, motors, speeds, duration):
+	for i in range(len(motors)):
+		motors[i].target=speeds[i]
+	
+	lasttime = time.time()
+
+        if duration > 0:
+            log("running for " + str(duration) + " seconds")
+            while True:
+                now = time.time()
+                diff = now - lasttime
+                duration -= diff
+
+                if duration <= 0:
+                    break
+
+                lasttime = now
 
 if __name__ == '__main__':
 	v, w=calibrate()
