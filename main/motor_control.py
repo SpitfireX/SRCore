@@ -81,9 +81,9 @@ def initMotorControl(robot):
     global running
     running = False
 
-    global v
-    global w
-    v, w = calibrate(r)
+    #global v
+    #global w
+    #v, w = calibrate(r)
     # checkCalibrating()
 
 def checkCalibrating():
