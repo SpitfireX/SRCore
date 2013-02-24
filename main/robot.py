@@ -30,3 +30,6 @@ def stopEventLoop():
 
 initRobot()
 startEventLoop()
+robot.servos[0][0]=50.0
+wait_for(robot.io[0].input[0].query.d==1)
+robot.servos[0][0]=0.0
