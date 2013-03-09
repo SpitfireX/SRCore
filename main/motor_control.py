@@ -126,6 +126,6 @@ def addAngleInstruction(angle):
     global w
     for i in len(w):
         if w[i] < angle < w[i+1] or w[i]==angle:
-            speed = (i+1)*10 if angle > 0 else -(i+1)*10
+            speed = int(((i+1)*10)*angle/w[i]) if angle > 0 else int((-(i+1)*10)*angle/w[i])
             mI = MotorInstruction(R.motors, [speed, -speed], 1)
             instructions.append(mI)
