@@ -6,5 +6,5 @@ def processEvents(events):
     for event in events:
         if event.eventType == "Marker":
             log("Marker: " + str(event))
-        elif event.eventType == "Pin":
-            log(str(event))
+        # elif event.eventType == "Pin":
+        #     log(str(event))

@@ -29,7 +29,12 @@ def stopEventLoop():
     running = False
 
 initRobot()
-startEventLoop()
-robot.servos[0][0]=50.0
-wait_for(robot.io[0].input[0].query.d==1)
+log("Servo test start")
+log("Current: " + str(robot.servos[0][0]))
 robot.servos[0][0]=0.0
+log("New: " + str(robot.servos[0][0]))
+time.sleep(1)
+robot.servos[0][0]=50.0
+log("Last: " + str(robot.servos[0][0]))
+log("Servo test end")
+startEventLoop()
