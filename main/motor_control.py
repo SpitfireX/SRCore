@@ -5,6 +5,7 @@ import threading
 from calibrate import calibrate
 
 instructions = []
+allticks = 0
 
 class MotorCotrolThread(threading.Thread):
     cI = None
@@ -66,10 +67,13 @@ class MotorInstruction():
                 if res[1] != None:
                     rightTicks += 1
                     log("Right pin triggered")
+                    if r.motors[0].target>1 and r.motors[1].target>1:
+                        allticks+=1
                 else:
                     leftTicks += 1
                     log("Left pin triggered")
-
+                    if r.motors[0].target>1 and r.motors[1].target>1:
+                        allticks+=1
         else:
             log("Running forever")
             while not self.skipped:
@@ -92,20 +96,8 @@ def initMotorControl(robot):
     # v, w = calibrate(r)
     # checkCalibrating()
 
-def checkCalibrating():
-    global r
-    print "Calibrate robot? (Decide in 5 seconds)"
-    ticks = 5
-    firsttime = time.time()
-    while ticks > 0:
-        ticks -= time.time() - firsttime
-        pin0 = r.io[0].input[0].d
-        pin1 = r.io[0].input[1].d
-        if pin0 == 1 or pin1 == 1:
-            global v
-            global w
-            v, w=calibrate(r)
-            break
+def getTicks():
+    return allticks/2
 
 def startThread():
     global running
@@ -129,9 +121,6 @@ def getCurrentInstruction():
     return cI.speeds, cI.ticks
 
 def addAngleInstruction(angle):
-    global w
-    for i in len(w):
-        if w[i] < angle < w[i+1] or w[i]==angle:
-            speed = int(((i+1)*10)*angle/w[i]) if angle > 0 else int((-(i+1)*10)*angle/w[i])
-            mI = MotorInstruction(R.motors, [speed, -speed], 1)
-            instructions.append(mI)
+    global r
+    ticks=angle/(180/7.5)
+    addMotorInstruction(r.motors, [70, -70], ticks)
