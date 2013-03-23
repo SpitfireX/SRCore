@@ -15,7 +15,7 @@ class MotorCotrolThread(threading.Thread):
 
     def run(self):
         log("Started MotorControl Thread")
-        
+
         global running
         running = True
 
@@ -39,33 +39,39 @@ class MotorCotrolThread(threading.Thread):
             log("    noting to skip")
 
 class MotorInstruction():
-    def __init__(self, motors, speeds, duration = 0):
+    def __init__(self, motors, speeds, ticks = 0):
         self.motors = motors
         self.speeds = speeds
-        self.duration = duration
+        self.ticks = ticks
         self.skipped = False
 
     def setup(self):
-        #log("Instruction: " + str(self.motors) + " " + str(self.speeds) + " " + str(self.duration))
+        #log("Instruction: " + str(self.motors) + " " + str(self.speeds) + " " + str(self.ticks))
         for i in range(len(self.motors)):
             self.motors[i].target = self.speeds[i]
 
     def run(self):
-        lasttime = time.time()
+        global r
+        if self.ticks > 0:
+            log("Running for " + str(self.ticks) + " ticks")
+            rightTicks = leftTicks = 0
 
-        if self.duration > 0:
-            log("running for " + str(self.duration) + " seconds")
-            while not self.skipped:
-                now = time.time()
-                diff = now - lasttime
-                self.duration -= diff
-
-                if self.duration <= 0:
+            while rightTicks < self.ticks and leftTicks < self.ticks:
+                if self.skipped:
                     break
 
-                lasttime = now
+                # TODO: use right pins
+                log("Waiting for pins")
+                res = wait_for(r.io[0].input[3].query.d == 1, r.io[0].input[4].query.d == 1)
+                if res[1] != None:
+                    rightTicks += 1
+                    log("Right pin triggered")
+                else:
+                    leftTicks += 1
+                    log("Left pin triggered")
+
         else:
-            log("running for indefinite time")
+            log("Running forever")
             while not self.skipped:
                 time.sleep(0.1)
 
@@ -83,16 +89,16 @@ def initMotorControl(robot):
 
     global v
     global w
-    v, w = calibrate(r)
+    # v, w = calibrate(r)
     # checkCalibrating()
 
 def checkCalibrating():
     global r
     print "Calibrate robot? (Decide in 5 seconds)"
-    duration = 5
+    ticks = 5
     firsttime = time.time()
-    while duration > 0:
-        duration -= time.time() - firsttime
+    while ticks > 0:
+        ticks -= time.time() - firsttime
         pin0 = r.io[0].input[0].d
         pin1 = r.io[0].input[1].d
         if pin0 == 1 or pin1 == 1:
@@ -110,8 +116,8 @@ def stopThread():
     global running
     running = False
 
-def addMotorInstruction(motors, speeds, duration = 0):
-    i = MotorInstruction(motors, speeds, duration)
+def addMotorInstruction(motors, speeds, ticks = 0):
+    i = MotorInstruction(motors, speeds, ticks)
     instructions.append(i)
 
 def skipCurrentInstruction():
@@ -120,7 +126,7 @@ def skipCurrentInstruction():
 
 def getCurrentInstruction():
     global cI
-    return cI.speeds, cI.duration
+    return cI.speeds, cI.ticks
 
 def addAngleInstruction(angle):
     global w
