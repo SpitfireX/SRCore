@@ -1,7 +1,6 @@
 from sr_emulator import *
 from logger import log
 import motor_control, sensor_control, calibrate2, logic_control
-import time
 
 robot = Robot()
 running = False
@@ -9,10 +8,10 @@ running = False
 def initRobot():
     log("Initializing Robot")
 
-    sensor_control.initSensorControl(robot)
+    # sensor_control.initSensorControl(robot)
     motor_control.initMotorControl(robot)
 
-    sensor_control.startThread()
+    # sensor_control.startThread()
     motor_control.startThread()
     log("Finished robot initializsation")
 
@@ -29,7 +28,10 @@ def stopEventLoop():
     running = False
 
 initRobot()
-startEventLoop()
-robot.servos[0][0]=50.0
-wait_for(robot.io[0].input[0].query.d==1)
-robot.servos[0][0]=0.0
+# startEventLoop()
+# log("Waiting for input 0")
+# wait_for(robot.io[0].input[0].query.d == 1, robot.io[0].input[1].query.d == 1)
+log("Waiting for button")
+wait_for(robot.io[0].input[0].query.d, robot.io[0].input[1].query.d)
+log("Adding instructions")
+motor_control.addMotorInstruction(robot.motors,[50,50],1)
