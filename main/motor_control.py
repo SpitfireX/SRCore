@@ -6,6 +6,7 @@ from calibrate import calibrate
 
 instructions = []
 allticks = 0
+currentAngle=0
 
 class MotorCotrolThread(threading.Thread):
     cI = None
@@ -99,6 +100,9 @@ def initMotorControl(robot):
 def getTicks():
     return allticks/2
 
+def getCurrentAngle():
+    return currentAngle
+
 def startThread():
     global running
     running = True
@@ -122,5 +126,9 @@ def getCurrentInstruction():
 
 def addAngleInstruction(angle):
     global r
-    ticks=angle/(180/7.5)
+    ticks = angle/(180/7.5)
+    if ticks < 1:
+        ticks = 1
+    speed = [70, -70] if angle < 0 else [-70, 70]
     addMotorInstruction(r.motors, [70, -70], ticks)
+    currentAngle += angle
