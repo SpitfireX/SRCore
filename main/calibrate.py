@@ -1,6 +1,6 @@
 from sr_emulator import *
 import time, math
-from logger import log
+from logger import debug
 
 def calibrate(r):
 	v=[]
