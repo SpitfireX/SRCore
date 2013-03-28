@@ -1,5 +1,5 @@
 from sr_emulator import *
-from logger import log
+from logger import debug
 import time
 import motor_control
 
