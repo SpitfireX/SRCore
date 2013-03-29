@@ -131,12 +131,13 @@ def addAngleInstruction(angle):
     global currentAngle
 	global changePoints
 	ticks = angle/(180/15)
-	print changePoints
-	coor = computeCoordinates(allticks, changePoints, getCurrentAngle())
-	recentTicks = getTicks() if len(changePoints) == 0 else getTicks() - changePoints[len(changePoints)-1][2]
-	changePoints.append([getCurrentAngle(), coor, recentTicks])
+	#print changePoints
+	#coor = computeCoordinates(allticks, changePoints, getCurrentAngle())
+	#recentTicks = getTicks() if len(changePoints) == 0 else getTicks() - changePoints[len(changePoints)-1][2]
+	#changePoints.append([getCurrentAngle(), coor, recentTicks])
 	if ticks < 1:
 		ticks = 1
-	speed = [70, -70] if angle < 0 else [-70, 70]
-	addMotorInstruction(r.motors, [70, -70], ticks)
-	currentAngle += angle
+	if angle != 0 and angle != 360:
+		speed = [70, -70] if angle < 0 else [-70, 70]
+		addMotorInstruction(r.motors, [70, -70], ticks)
+		currentAngle += angle
