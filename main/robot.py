@@ -30,9 +30,12 @@ def stopEventLoop():
 initRobot()
 # startEventLoop()
 debug("Waiting for button")
-wait_for(robot.io[0].input[0].query.d, robot.io[0].input[1].query.d)
-debug("Adding instructions")
-for i in 90, 180, 25:
-    debug("Add instruction "+str(i)+" degrees?") 
-    wait_for(robot.io[0].input[0].query.d, robot.io[0].input[1].query.d)
-    motor_control.addAngleInstruction(i)
+angle=0
+while True:
+    wait_for(robot.io[0].input[0].query.d==0, robot.io[0].input[1].query.d==0)
+    wait_for(robot.io[0].input[0].query.d==1, robot.io[0].input[1].query.d==1)
+    if angle == 0:
+        robot.servos[0][0]=angle=60
+    else:
+        robot.servos[0][0]=angle=0
+    
