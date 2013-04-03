@@ -1,6 +1,8 @@
-from sr_emulator import *
+from sr import *
 from logger import debug
-import motor_control, sensor_control, calibrate2, logic_control
+from strategy import Strategy
+import motor_control, sensor_control, logic_control
+import time
 
 robot = Robot()
 running = False
@@ -8,34 +10,28 @@ running = False
 def initRobot():
     debug("Initializing Robot")
 
-    # sensor_control.initSensorControl(robot)
+    sensor_control.initSensorControl(robot)
     motor_control.initMotorControl(robot)
 
-    # sensor_control.startThread()
+    sensor_control.startThread()
     motor_control.startThread()
     debug("Finished robot initializsation")
 
 def startEventLoop():
+    debug("Starting event loop")
     global running
     running = True
+    strategy = Strategy(robot)
 
     while running:
         events = sensor_control.getChanges()
-        logic_control.processEvents(events)
+        if len(events) != 0:
+            debug("Markers: " + str(len(events)))
+            strategy.act(events)
 
 def stopEventLoop():
     global running
     running = False
 
 initRobot()
-# startEventLoop()
-debug("Waiting for button")
-angle=0
-while True:
-    wait_for(robot.io[0].input[0].query.d==0, robot.io[0].input[1].query.d==0)
-    wait_for(robot.io[0].input[0].query.d==1, robot.io[0].input[1].query.d==1)
-    if angle == 0:
-        robot.servos[0][0]=angle=60
-    else:
-        robot.servos[0][0]=angle=0
-    
+startEventLoop()

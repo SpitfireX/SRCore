@@ -17,37 +17,35 @@ class MarkerThread(threading.Thread):
         while True:
             global r
             markers = r.see()
-    		computeMarkers(r, markers)
-            for m in markers:
-                changes.append(Event(time.time(), "Marker", m))
+            # computeMarkers(r, markers)
+            changes.extend(markers)
 
 
-class JointIOThread(threading.Thread):
-    def __init__(self):
-        threading.Thread.__init__(self)
+# class JointIOThread(threading.Thread):
+#     def __init__(self):
+#         threading.Thread.__init__(self)
 
-    def run(self):
-        debug("Started JointIOThread")
+#     def run(self):
+#         debug("Started JointIOThread")
 
-
-        global r
-        global changes
-        localChanges = []
-        initial = r.io[0].input
-        for i in range(len(initial)):
-            event = Event(time.time(), "Pin", (i, initial[i].d))
-            localChanges.append(event)
-            changes.append(event)
-        while True:
-            ins = r.io[0].input
-            for i in range(0, len(ins)):
-                digIn = ins[i].d
-                event = Event(time.time(), "Pin", (i, digIn))
-                oldIn = filter(lambda e: e.eventValue[0] == i, localChanges)[0]
-                if digIn != oldIn:
-                    localChanges.remove(oldIn)
-                    localChanges.append(event)
-                    changes.append(event)
+#         global r
+#         global changes
+#         localChanges = []
+#         initial = r.io[0].input
+#         for i in range(len(initial)):
+#             event = Event(time.time(), "Pin", (i, initial[i].d))
+#             localChanges.append(event)
+#             changes.append(event)
+#         while True:
+#             ins = r.io[0].input
+#             for i in range(0, len(ins)):
+#                 digIn = ins[i].d
+#                 event = Event(time.time(), "Pin", (i, digIn))
+#                 oldIn = filter(lambda e: e.eventValue[0] == i, localChanges)[0]
+#                 if digIn != oldIn:
+#                     localChanges.remove(oldIn)
+#                     localChanges.append(event)
+#                     changes.append(event)
 
 
 class Event():
@@ -62,17 +60,17 @@ def initSensorControl(robot):
     r = robot
 
     global markerThread
-    global ioThread
+    # global ioThread
 
     markerThread = MarkerThread()
-    ioThread = JointIOThread()
+    # ioThread = JointIOThread()
 
 def startThread():
     global markerThread
-    global ioThread
+    # global ioThread
 
     markerThread.start()
-    ioThread.start()
+    # ioThread.start()
 
 def getChanges():
     global changes
