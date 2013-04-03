@@ -1,11 +1,34 @@
-global r_marker
+from math import *
 
-global x
-global y
+global changes
+global markers
+global ios
+global r_marker
 x = y = None # Position des Roboters.
 
-def computeMarkers(robot, ms):
-    r=robot
+
+pedestals = {32:(2000, 6000),
+			33:(4000, 6000),
+			34:(6000, 6000),
+			35:(2000, 4000),
+			36:(4000, 4000),
+			37:(6000, 4000),
+			38:(2000, 2000),
+			39:(4000, 2000),
+			40:(6000, 2000)}
+
+m_info = {6:1000, 5:2000, 4:3000, 3:4000, 2:5000, 1:6000, 0:7000,
+		27:1000, 26:2000, 25:3000, 24:4000, 23:5000, 22:6000, 21:7000,
+		14:1000, 15:2000, 16:3000, 17:4000, 18:5000, 19:6000, 20:7000,
+		7:1000, 8:2000, 9:3000, 10:4000, 11:5000, 12:6000, 13:7000}
+		
+def getCoordinates():
+	global x
+	global y
+	return [x, y]
+
+def computeMarkers(robot, ms, activeToken=None, side=None):
+	r=robot
 	markers=ms
 	
 	global r_marker
@@ -13,82 +36,69 @@ def computeMarkers(robot, ms):
 	
 	global x
 	global y
-
-	pedestals = {32:(2000, 6000),
-				33:(4000, 6000),
-                34:(6000, 6000),
-                35:(2000, 4000),
-                36:(4000, 4000),
-                37:(6000, 4000),
-                38:(2000, 2000),
-                39:(4000, 2000),
-                40:(6000, 2000)}
-
-	m_info = {6:1, 5:2, 4:3, 3:4, 2:5, 1:6, 0:7,
-			27:1, 26:2, 25:3, 24:4, 23:5, 22:6, 21:7,
-			14:1, 15:2, 16:3, 17:4, 18:5, 19:6, 20:7,
-			7:1, 8:2, 9:3, 10:4, 11:5, 12:6, 13:7}
+	global m_info
+	global pedestals
 
 	for m in markers:
 		if m.info.marker_type == MARKER_ARENA:
 			if 0 <= m.info.code <= 6:
-				if m.centre.rot_y != 0: # Falls der Marker nicht genau parallel zum Roboter aufgehaengt ist
+				if m.centre.orientation.rot_y != 0: # Falls der Marker nicht genau parallel zum Roboter aufgehaengt ist
 										# Der Roboter bildet mit dem Abstand zum Marker und dem Abstand von der Wand ein Dreieck.
 										# Da wir den Winkel zum Marker wissen und den Abstand dorthin, kann das mit Sinus ausgerechnet werden.
-					ank = math.degrees(sin(m.centre.rot_y)) * m.centre.dist
-					y = sqrt(m.centre.dist**2 - ank**2) # x wird mit Pythagoras ausgerechnet
+					ank = degrees(sin(radians(m.centre.orientation.rot_y))) * m.centre.dist * 1000
+					y = sqrt((m.centre.dist*1000)**2 - ank**2) # y wird mit Pythagoras ausgerechnet, in mm
                 
 				else:
-					y = m.centre.dist
+					y = m.centre.dist*1000
 
 				x = m_info(m.info.code) # Abstand der Marker: 1 Meter ->
-				x -= ank if m.centre.rot_y < 0 else -ank # Aber: die Marker koennen auch schief aufgehaengt sein (ich gehe hier davon aus, dass
-														# bei Verschiebung nach links rot_y negativ ist und bei Verschiebung nach rechts positiv.
+				x -= ank if m.centre.orientation.rot_y < 0 else -ank # Aber: die Marker koennen auch schief aufgehaengt sein (ich gehe hier davon aus, dass
+														# bei Verschiebung nach links orientation.rot_y negativ ist und bei Verschiebung nach rechts positiv.
 														# unbedingt ausprobieren!!!
 			elif 14 <= m.info.code <= 20:
-				if m.centre.rot_y != 0:
-					ank = math.degrees(sin(m.centre.rot_y)) * m.centre.dist
-					y = 8 - sqrt(m.centre.dist**2 - ank**2) # hier 8m (Breite der Arena) minus der Abstand von der Wand.
+				if m.centre.orientation.rot_y != 0:
+					ank = degrees(sin(radians(m.centre.orientation.rot_y))) * m.centre.dist * 1000
+					y = 8000 - sqrt((m.centre.dist*1000)**2 - ank**2) # hier 8m (Breite der Arena) minus der Abstand von der Wand.
                 
 				else:
-					y = 8 - m.centre.dist
+					y = 8 - m.centre.dist*1000
 
 					x = m_info(m.info.code)
-					x += ank if m.centre.rot_y < 0 else -ank # hier ist es andersherum!
+					x += ank if m.centre.orientation.rot_y < 0 else -ank # hier ist es andersherum!
 
 			elif 7 <= m.info.code <= 13:
-				if m.centre.rot_y != 0:
-					ank = math.degrees(sin(m.centre.rot_y)) * m.centre.dist
-					x = 8 - sqrt(m.centre.dist**2 - ank**2)
+				if m.centre.orientation.rot_y != 0:
+					ank = degrees(sin(radians(m.centre.orientation.rot_y))) * m.centre.dist * 1000
+					x = 8000 - sqrt((m.centre.dist*1000)**2 - ank**2)
                     
 				else:
-					x = 8 - m.centre.dist
+					x = 8000 - m.centre.dist * 1000
 
 					y = m_info(m.info.code)
-					y += ank if m.centre.rot_y < 0  else -ank
+					y += ank if m.centre.orientation.rot_y < 0  else -ank
 
 			else:
-				if m.centre.rot_y != 0:
-					ank = math.degrees(sin(m.centre.rot_y)) * m.centre.dist
-					x = sqrt(m.centre.dist**2 - ank**2)
+				if m.centre.orientation.rot_y != 0:
+					ank = degrees(sin(radians(m.centre.orientation.rot_y))) * m.centre.dist * 1000
+					x = sqrt((m.centre.dist*1000)**2 - ank**2)
                 
 				else:
-					x = m.centre.dist
+					x = m.centre.dist*1000
 
 					y = m_info(m.info.code)
-					y += ank if m.centre.rot_y < 0 else -ank
+					y += ank if m.centre.orientation.rot_y < 0 else -ank
 
 			motor_control.changePoints.append(motor_control.getCurrentAngle(), [x, y])
                
 		elif m.info.marker_type == MARKER_ROBOT:
 			global r_marker
 			if len(r_marker) == 0:
-				r_marker=[m.info.code, m.dist]
+				r_marker=[m.info.code, m.dist * 1000]
                     
 			else:
 				if m.info.code == r_marker[0]:
 					distsOld = r_markers[1]
-					distsNew = m.dist
+					distsNew = m.dist * 1000
                             
 					change = distsNew-distsOld
                             
@@ -98,17 +108,46 @@ def computeMarkers(robot, ms):
 						continue
                     
 					else:
-						pointdist=math.degrees(tan(m.rot_y)*m.dist)
-						if pointdist <= 50:
+						pointdist=math.degrees(tan(radians(m.orientation.rot_y))*m.dist*1000)
+						if pointdist <= 450:
 							speeds, duration=motor_control.getCurrentInstruction()
 							skipCurrentInstruction()
-							angle = -m.rot_y - 10 if m.rot_y > 0 else -m.rot_y +10 
+							angle = -m.orientation.rot_y - 10 if m.orientation.rot_y > 0 else -m.orientation.rot_y +10 
 							addAngleInstruction(angle)
 							addMotorInstruction(r.motors, speeds, duration)
 
 		elif m.info.marker_type == MARKER_PEDESTAL:
-			currentAngle=motor_control.getCurrentAngle()           
-	
+			if activeToken != None:
+				currentAngle = motor_control.getCurrentAngle()
+				coor = pedestals(activeToken)
+				xped = coor[0]
+				yped = coor[1]
+				if side == "down":
+					y -= m.dist * 1000 if currentAngle == 0 else cos(radians(m.orientation.rot_y)) * m.dist * 1000
+					x -= 0 if currentAngle == 0 else cos(radians(m.orientation.rot_y)) * (x - xped) * 1000
+			
+				elif side == "up":
+					y += m.dist * 1000 if currentAngle == 0 else cos(radians(m.orientation.rot_y)) * m.dist * 1000
+					x -= 0 if currentAngle == 0 else cos(radians(m.orientation.rot_y)) * (x - xped) * 1000
+			
+				elif side == "right":
+					x += m.dist * 1000 if currentAngle == 0 else cos(radians(m.orientation.rot_y)) * m.dist * 1000
+					y -= 0 if currentAngle == 0 else cos(radians(m.orientation.rot_y)) * (y - yped) * 1000
+			
+				else:
+					x -= m.dist * 1000 if currentAngle == 0 else cos(radians(m.orientation.rot_y)) * m.dist * 1000
+					y -= 0 if currentAngle == 0 else cos(radians(m.orientation.rot_y)) * (y - yped) * 1000
+				
+				#addTokenInstruction(currentToken, xped, yped, x, y)
+			
+			else:
+				for m2 in marker:
+					diff = m2.dist * 1000 - m.dist * 1000
+					#if diff <= 10 or diff <= -10:
+						#onPedestals.append(m2)
+						#break
+		
+				
 def computeCoordinates(allticks, changePoints=[], currentAngle=0):
 	print changePoints
 	global x
@@ -121,7 +160,7 @@ def computeCoordinates(allticks, changePoints=[], currentAngle=0):
 
 	else:
 		if currentAngle == 0:
-			y += allticks  -changePoints[len(changePoints)-1][2]
+			y += allticks - changePoints[len(changePoints)-1][2]
 			return [x, y]
 		
 		elif currentAngle == 180:
@@ -138,8 +177,8 @@ def computeCoordinates(allticks, changePoints=[], currentAngle=0):
 		
 		else:
 			currentTicks = allticks - changePoints[len(changePoints) - 1][2]
-			xpart = cos(currentAngle) * currentTicks
-			ypart = sin(currentAngle) * currentTicks
+			xpart = cos(math.radians(currentAngle)) * currentTicks * 80 # in mm
+			ypart = sin(math.radians(currentAngle)) * currentTicks * 80	# " "
 				
 			if currentAngle > 0 and currentAngle < 90:
 				xpart *= -1
