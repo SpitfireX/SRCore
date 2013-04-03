@@ -27,6 +27,13 @@ def getCoordinates():
 	global y
 	return [x, y]
 
+def computeAbsolutePositionByArenaMarker(marker):
+    if m.info.marker_type != MARKER_ARENA: raise Exception("Wrong marker type.")
+    (xm,ym,phim) = m_info[m.info.code]
+    alpha = radians(marker.orientation.rot_y - marker.rot_y + phim)
+    return ( xm + marker.dist * cos(alpha), ym + marker.dist * sin(alpha) )
+
+
 def computeMarkers(robot, ms, activeToken=None, side=None):
 	r=robot
 	markers=ms
@@ -41,54 +48,8 @@ def computeMarkers(robot, ms, activeToken=None, side=None):
 
 	for m in markers:
 		if m.info.marker_type == MARKER_ARENA:
-			if 0 <= m.info.code <= 6:
-				if m.centre.orientation.rot_y != 0: # Falls der Marker nicht genau parallel zum Roboter aufgehaengt ist
-										# Der Roboter bildet mit dem Abstand zum Marker und dem Abstand von der Wand ein Dreieck.
-										# Da wir den Winkel zum Marker wissen und den Abstand dorthin, kann das mit Sinus ausgerechnet werden.
-					ank = degrees(sin(radians(m.centre.orientation.rot_y))) * m.centre.dist * 1000
-					y = sqrt((m.centre.dist*1000)**2 - ank**2) # y wird mit Pythagoras ausgerechnet, in mm
-                
-				else:
-					y = m.centre.dist*1000
-
-				x = m_info(m.info.code) # Abstand der Marker: 1 Meter ->
-				x -= ank if m.centre.orientation.rot_y < 0 else -ank # Aber: die Marker koennen auch schief aufgehaengt sein (ich gehe hier davon aus, dass
-														# bei Verschiebung nach links orientation.rot_y negativ ist und bei Verschiebung nach rechts positiv.
-														# unbedingt ausprobieren!!!
-			elif 14 <= m.info.code <= 20:
-				if m.centre.orientation.rot_y != 0:
-					ank = degrees(sin(radians(m.centre.orientation.rot_y))) * m.centre.dist * 1000
-					y = 8000 - sqrt((m.centre.dist*1000)**2 - ank**2) # hier 8m (Breite der Arena) minus der Abstand von der Wand.
-                
-				else:
-					y = 8 - m.centre.dist*1000
-
-					x = m_info(m.info.code)
-					x += ank if m.centre.orientation.rot_y < 0 else -ank # hier ist es andersherum!
-
-			elif 7 <= m.info.code <= 13:
-				if m.centre.orientation.rot_y != 0:
-					ank = degrees(sin(radians(m.centre.orientation.rot_y))) * m.centre.dist * 1000
-					x = 8000 - sqrt((m.centre.dist*1000)**2 - ank**2)
-                    
-				else:
-					x = 8000 - m.centre.dist * 1000
-
-					y = m_info(m.info.code)
-					y += ank if m.centre.orientation.rot_y < 0  else -ank
-
-			else:
-				if m.centre.orientation.rot_y != 0:
-					ank = degrees(sin(radians(m.centre.orientation.rot_y))) * m.centre.dist * 1000
-					x = sqrt((m.centre.dist*1000)**2 - ank**2)
-                
-				else:
-					x = m.centre.dist*1000
-
-					y = m_info(m.info.code)
-					y += ank if m.centre.orientation.rot_y < 0 else -ank
-
-			motor_control.changePoints.append(motor_control.getCurrentAngle(), [x, y])
+                    (x, y) = computeAbsolutePositionByArenaMarker(m)
+                    motor_control.changePoints.append(motor_control.getCurrentAngle(), [x, y])
                
 		elif m.info.marker_type == MARKER_ROBOT:
 			global r_marker
