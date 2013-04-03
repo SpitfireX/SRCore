@@ -1,21 +1,15 @@
 from math import sqrt
 
-class Vector:
-    def __init__(self, x, y, z):
-        self.x = x
-        self.y = y
-        self.z = z
-    
-def vadd(vec1, vec2):
-    return Vector(vec1.x + vec2.x,
-                  vec1.y + vec2.y,
-                  vec1.z + vec2.z)
-    
-def sprod(vec1, vec2):
-    return vec1.x*vec2.x + vec1.y*vec2.y + vec1.z*vec2.z
+def vAdd(vec1, vec2):
+    return (vec1[0] + vec2[0],
+            vec1[1] + vec2[1],
+            vec1[2] + vec2[2])
 
-def smult(vec, num):
-    return Vector(vec.x*num, vec.y*num, vec.z*num)
+def sProd(vec1, vec2):
+    return (vec1[0]*vec2[0] + vec1[1]*vec2[1] + vec1[2]*vec2[2])
 
-def vlen(vec):
-    return sqrt(vec.x**2 + vec.y**2 + vec.z**2)
+def sMult(num, vec):
+    return (vec[0]*num, vec[1]*num, vec[2]*num)
+
+def vLen(vec):
+    return sqrt(vec[0]**2 + vec[1]**2 + vec[2]**2)
