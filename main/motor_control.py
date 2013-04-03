@@ -2,7 +2,8 @@ from sr_emulator import *
 from logger import debug
 import time
 import threading
-# from computeChanges import computeCoordinates
+from computeChanges import computeCoordinates
+from math import *
 
 instructions = []
 allticks = 0
@@ -97,12 +98,6 @@ def initMotorControl(robot):
     # v, w = calibrate(r)
     # checkCalibrating()
 
-def getTicks():
-    return allticks/2
-
-def getCurrentAngle():
-    return currentAngle
-
 def startThread():
     global running
     running = True
@@ -112,7 +107,7 @@ def stopThread():
     global running
     running = False
 
-def addMotorInstruction(speeds, ticks = 0):
+def addMotorInstruction(speeds = [70, 70], ticks = 0):
     i = MotorInstruction(speeds, ticks)
     instructions.append(i)
 
@@ -124,17 +119,30 @@ def getCurrentInstruction():
     global cI
     return cI.speeds, cI.ticks
 
+def addPositionInstruction(coor):
+    global currentAngle
+    global changePoints
+    currentCoor = computeCoordinates(allticks, changePoints, currentAngle)
+    waypoints = [coor[0] - currentCoor[0], coor[1] - currentCoor[1]]
+    angle = degrees(atan2(waypoints[0], waypoints[1]))
+    way = sqrt(waypoints[0]**2 + waypoints[1]**2)
+    addAngleInstruction(angle)
+    addMotorInstruction(way / 80)
+
+def getCurrentAngle():
+    global currentAngle
+    return currentAngle
+
 def addAngleInstruction(angle):
     global currentAngle
     global changePoints
-    ticks = angle/(180/15)
+    ticks = angle/(180/16)
     #print changePoints
-    #coor = computeCoordinates(allticks, changePoints, getCurrentAngle())
-    #recentTicks = getTicks() if len(changePoints) == 0 else getTicks() - changePoints[len(changePoints)-1][2]
-    #changePoints.append([getCurrentAngle(), coor, recentTicks])
+    #coor = computeCoordinates(allticks, changePoints, currentAngle)
+    recentTicks = allticks if len(changePoints) == 0 else allticks - changePoints[len(changePoints)-1][2]
+    changePoints.append([currentAngle, coor, recentTicks])
     if ticks < 1:
         ticks = 1
-    if angle != 0 and angle != 360:
-        speed = [70, -70] if angle < 0 else [-70, 70]
-        addMotorInstruction([70, -70], ticks)
-        currentAngle += angle
+    speed = [70, -70] if angle < 0 else [-70, 70]
+    addMotorInstruction([70, -70], ticks)
+    currentAngle += angle
