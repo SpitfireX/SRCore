@@ -1,4 +1,5 @@
 from math import *
+from sr_emulator import MARKER_ARENA
 
 global changes
 global markers
@@ -17,10 +18,10 @@ pedestals = {32:(2000, 6000),
              39:(4000, 2000),
              40:(6000, 2000)}
 
-m_info = {6:(0,1000,0), 5:(0,2000,0), 4:(0,3000,0), 3:(0,4000,0), 2:(0,5000,0), 1:(0,6000,0), 0:(0,7000,0),
-          7:(1000,0,-90), 8:(2000,0,-90), 9:(3000,0,-90), 10:(4000,0,-90), 11:(5000,0,-90), 12:(6000,0,-90), 13:(7000,0,-90),
-          14:(8000,1000,180), 15:(8000,2000,180), 16:(8000,3000,180), 17:(8000,4000,180), 18:(8000,5000,180), 19:(8000,6000,180), 20:(8000,7000,180),
-          27:(1000,8000,90), 26:(2000,8000,90), 25:(3000,8000,90), 24:(4000,8000,90), 23:(5000,8000,90), 22:(6000,8000,90), 21:(7000,8000,90)}
+m_info = {6:(0,1,0), 5:(0,2,0), 4:(0,3,0), 3:(0,4,0), 2:(0,5,0), 1:(0,6,0), 0:(0,7,0),
+          7:(1,0,-90), 8:(2,0,-90), 9:(3,0,-90), 10:(4,0,-90), 11:(5,0,-90), 12:(6,0,-90), 13:(7,0,-90),
+          14:(8,1,180), 15:(8,2,180), 16:(8,3,180), 17:(8,4,180), 18:(8,5,180), 19:(8,6,180), 20:(8,7,180),
+          27:(1,8,90), 26:(2,8,90), 25:(3,8,90), 24:(4,8,90), 23:(5,8,90), 22:(6,8,90), 21:(7,8,90)}
 
 def getCoordinates():
     global x
@@ -28,11 +29,10 @@ def getCoordinates():
     return [x, y]
 
 def computeAbsolutePositionByArenaMarker(marker):
-    if m.info.marker_type != MARKER_ARENA: raise Exception("Wrong marker type.")
-    (xm,ym,phim) = m_info[m.info.code]
-    alpha = radians(marker.orientation.rot_y - marker.rot_y + phim)
+    if marker.info.marker_type != MARKER_ARENA: raise Exception("Wrong marker type.")
+    (xm,ym,phim) = m_info[marker.info.code]
+    alpha = radians(marker.orientation.rot_y - marker.rot_y - phim)
     return ( xm + marker.dist * cos(alpha), ym + marker.dist * sin(alpha) )
-
 
 def computeMarkers(robot, ms, activeToken=None, side=None):
     r=robot
