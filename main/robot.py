@@ -1,6 +1,7 @@
 from sr import *
 from logger import debug
 from strategy import Strategy
+from logic.computeChanges import computeAbsolutePositionByArenaMarker
 import motor_control, sensor_control, logic_control
 import time
 
@@ -24,10 +25,14 @@ def startEventLoop():
     strategy = Strategy(robot)
 
     while running:
-        events = sensor_control.getChanges()
-        if len(events) != 0:
-            debug("Markers: " + str(len(events)))
-            strategy.act(events)
+        sensor_control.event.wait()
+        markers = sensor_control.getChanges()
+        sensor_control.event.clear()
+        # debug("Markers: " + str(len(events)))
+        # strategy.act(events)
+        for m in markers:
+            if m.info.marker_type == MARKER_ARENA:
+              debug("Computed position:  " + str(computeAbsolutePositionByArenaMarker(m)))
 
 def stopEventLoop():
     global running

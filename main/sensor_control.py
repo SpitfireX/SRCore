@@ -2,9 +2,10 @@ from sr_emulator import *
 from logger import debug
 import threading
 import time
-from computeChanges import *
+# from computeChanges import *
 
 changes = []
+event = threading.Event()
 
 
 class MarkerThread(threading.Thread):
@@ -15,10 +16,11 @@ class MarkerThread(threading.Thread):
         debug("Started MarkerThread")
 
         while True:
-            global r
+            global r, event
             markers = r.see()
             # computeMarkers(r, markers)
             changes.extend(markers)
+            event.set()
 
 
 # class JointIOThread(threading.Thread):

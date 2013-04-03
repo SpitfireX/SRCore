@@ -2,7 +2,7 @@ from sr_emulator import *
 from logger import debug
 import time
 import threading
-from computeChanges import computeCoordinates
+# from computeChanges import computeCoordinates
 from math import *
 
 instructions = []
