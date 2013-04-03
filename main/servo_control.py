@@ -1,5 +1,8 @@
-grab_servo = 0
-turn_servo = 1
+from time import sleep
+from logger import debug
+
+grab_servo = 1
+turn_servo = 0
 has_token = False
 
 def getGrabServo():
@@ -9,17 +12,23 @@ def getTurnServo():
     return r.servos[0][turn_servo]
 
 def setGrabServo(position):
-    r.servos[0][grab_servo] = position
+    if position >= 14 and position <= 85:
+        r.servos[0][grab_servo] = position
+    else:
+        debug("Invalid servo position")
     
 def setTurnServo(position):
-    r.servos[0][turn_servo] = position
+    if position >= 14 and position <= 80:
+        r.servos[0][turn_servo] = position
+    else:
+        debug("Invalid servo position")
 
 def initServoControl(robot):
     global r
     r = robot
     
-    setGrabServo(0.0)
-    setTurnServo(0.0)
+    setGrabServo(85)
+    setTurnServo(14)
     
 def grabTokenLow():
     if getGrabServo() == 0 and getTurnServo() == 0:
@@ -48,11 +57,12 @@ def grabTokenHigh():
         return False
 
 def releaseTokenLow():
+    global has_token
+    
     if has_token:
         setTurnServo(0)
         setGrabServo(0)
         
-        global has_token
         has_token = False
         
         return True
@@ -60,12 +70,22 @@ def releaseTokenLow():
         return False
 
 def releaseTokenHigh():
+    global has_token
+    
     if has_token:
         setGrabServo(0)
         
-        global has_token
         has_token = False
         
         return True
     else:
         return False
+
+def interpolateServo(value, setFunction, getFunction, steps=10, time=1):
+    svalue = getFunction()
+    
+    for step in range(steps):
+        setFunction(svalue + step*((value-svalue)/steps))
+        sleep(time/steps)
+        
+    setFunction(value)
