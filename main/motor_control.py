@@ -46,13 +46,16 @@ class MotorCotrolThread(threading.Thread):
 
 class MotorInstruction():
     def __init__(self, speeds, ticks = 0):
+        if (len(speeds) != 2): raise Exception("speeds needs to be a 2-tuple")
+        if (not (ticks > 0)): raise Exception("ticks needs to be positive")
+
         self.speeds = speeds
         self.ticks = ticks
         self.skipped = False
 
     def setup(self):
         global r
-        r.motors[0].target = self.speeds[0] + 10
+        r.motors[0].target = self.speeds[0] + 10*cmp(self.speeds[0],0)
         r.motors[1].target = self.speeds[1]
 
     def run(self):
@@ -138,11 +141,11 @@ def addAngleInstruction(angle):
     global changePoints
     ticks = angle/(180/16)
     #print changePoints
-    #coor = computeCoordinates(allticks, changePoints, currentAngle)
-    recentTicks = allticks if len(changePoints) == 0 else allticks - changePoints[len(changePoints)-1][2]
-    changePoints.append([currentAngle, coor, recentTicks])
+    # coor = computeCoordinates(allticks, changePoints, currentAngle)
+    # recentTicks = allticks if len(changePoints) == 0 else allticks - changePoints[len(changePoints)-1][2]
+    # changePoints.append([currentAngle, coor, recentTicks])
     if ticks < 1:
         ticks = 1
     speed = [70, -70] if angle < 0 else [-70, 70]
-    addMotorInstruction([70, -70], ticks)
+    addMotorInstruction(speed, ticks)
     currentAngle += angle
