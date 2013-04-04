@@ -3,9 +3,6 @@ from vector_math import *
 from math import *
 # from computeChanges import *
 
-def debug(x):
-    pass
-
 class Strategy():
     def __init__(self, robot):
         self.hasToken = False
