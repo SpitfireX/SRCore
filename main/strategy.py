@@ -1,5 +1,10 @@
 from motor_control import *
+from vector_math import *
+from math import *
 # from computeChanges import *
+
+def debug(x):
+    pass
 
 class Strategy():
     def __init__(self, robot):
@@ -72,6 +77,44 @@ class Strategy():
             if isMarkerIn(pedestal, availablePedestals):
                 availablePedestals.remove(pedestal)
 
+def enclosedAngle(v, w):
+    "only normalized vectors allowed"
+    return degrees(acos(sProd(v,w)))*cmp(v[2]*w[0] - v[0]*w[2],0.)
+
+def approachMarker(marker, d):
+    # Approach a given marker to distance d on its normal
+    coords = marker.centre.world
+    debug("Coords: ({0},{1},{2})".format(coords.x,coords.y,coords.z))
+    rot_y = radians(marker.orientation.rot_y)
+    debug("rot_y: " + str(rot_y))
+    n = (-sin(rot_y), 0, -cos(rot_y))
+    v = vAdd((coords.x, coords.y, coords.z), sMult(d, n))
+    lenv = vLen(v)
+    vn = sMult(1./lenv, v)
+
+    alpha = enclosedAngle((0,0,1.), vn)
+    beta = enclosedAngle(vn,sMult(-1.,n))
+
+    debug("Alpha: {0},beta:{1}, len:{2}".format(alpha,beta,lenv))
+
+    addAngleInstruction(alpha)
+    addMotorInstruction(ticks = toTicks(lenv))
+
+    addAngleInstruction(beta)
+
+# def approachMarkerTest(x, y, z, rot_y, d):
+#     # Approach a given marker to distance d on its normal
+#     rot_y = radians(rot_y)
+#     n = (-sin(rot_y), 0, -cos(rot_y))
+#     v = vAdd((x, 0, z), sMult(d, n))
+#     lenv = vLen(v)
+#     vn = sMult(1./lenv, v)
+
+#     alpha = enclosedAngle((0,0,1.), vn)
+#     beta = enclosedAngle(vn,sMult(-1.,n))
+
+#     print("Alpha: {0},beta:{1}, len:{2}".format(alpha,beta,lenv))
+
 def isMarkerIn(m, list):
     for l in list:
         if l.info.code == m.info.code:
@@ -95,7 +138,7 @@ def findEmptyPedestal():
 def driveTo(dest):
     distance_m = dest.centre.polar.length
     debug("Driving for " + str(distance_m))
-    distance = distance_m * 100/4.25 # convert meter to ticks
+    distance = toTicks(distance_m) # convert meter to ticks
     if distance < 1:
         return True
     else:
@@ -108,3 +151,6 @@ def driveTo(dest):
 
 def isToken(m):
     return True
+
+def toTicks(n):
+    return n * 100/4.24
