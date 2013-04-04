@@ -32,7 +32,9 @@ def computeAbsolutePositionByArenaMarker(marker):
     if marker.info.marker_type != MARKER_ARENA: raise Exception("Wrong marker type.")
     (xm,ym,phim) = m_info[marker.info.code]
     alpha = radians(marker.orientation.rot_y - marker.rot_y - phim)
-    return ( xm + marker.dist * cos(alpha), ym + marker.dist * sin(alpha) )
+    return ( xm + marker.dist * cos(alpha),
+             ym + marker.dist * sin(alpha),
+             (phim - marker.orientation.rot_y) % 360 - 180 )
 
 def computeMarkers(robot, ms, activeToken=None, side=None):
     r=robot
@@ -48,7 +50,7 @@ def computeMarkers(robot, ms, activeToken=None, side=None):
 
     for m in markers:
         if m.info.marker_type == MARKER_ARENA:
-            (x, y) = computeAbsolutePositionByArenaMarker(m)
+            (x, y, _) = computeAbsolutePositionByArenaMarker(m)
             motor_control.changePoints.append(motor_control.getCurrentAngle(), [x, y])
 
         elif m.info.marker_type == MARKER_ROBOT:
