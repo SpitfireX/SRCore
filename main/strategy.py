@@ -3,6 +3,81 @@ from vector_math import *
 from math import *
 # from computeChanges import *
 
+class Objective():
+    def __init__(self):
+        self.preObjective = None
+
+    def setPreObjective(self, obj):
+        self.preObjective = obj
+
+    def reach(self, markers):
+        return ((self.preObjective and not self.preObjective.reach(markers))
+               or self.doReach(markers))
+
+    def doReach(self, markers):
+        raise Exception("doReach not implemented")
+
+class DeadEndException(Exception):
+    pass
+
+def allowedAngles(l, r, marker, lpl=0, rpl=0, i=0):
+    if len(marker) == 0 or len(marker) == i:
+        return (l,lpl,r,rpl)
+
+    m = marker.pop()
+
+    polarL = m.centre.polar.length
+    ml = m.centre.polar.rot_y + 0.8/polarL
+    mr = m.centre.polar.rot_y - 0.8/polarL
+
+    if l > ml and r < mr:
+        return allowedAngles(l, r, marker, lpl, rpl, i)
+    elif (l < ml and l < mr) or (r > mr and r > ml):
+        return allowedAngles(l, r, [m] + marker, lpl, rpl, i+1)
+    else:
+        return allowedAngles(l if l>ml else ml,
+                             r if r<mr else mr,
+                             marker
+                             lpl if l>ml else polarL,
+                             rpl if r<mr else polarL)
+
+class DestinationObjective(Objective):
+    def __init__(self, destination, noRecursion = False):
+        Objective.__init__(self)
+        self.destination = destination
+        self.noRecursion = noRecursion
+
+    def doReach(self, markers):
+        orientation = getCurrentAngle()
+        (x,y) = getCoordinates()
+        (xd,yd) = (self.destination[0] - x, self.destination[1] - y)
+        distance = vLen((xd,yd))
+        if distance < 0.1:
+            debug("Destination reached: " + str(self.destination))
+            return True
+        destAngle = - atan2(xd, yd)
+        alpha = degrees(destAngle) - orientation
+
+        (l, lPolarL, r, rPolarL) = allowedAngles(alpha, alpha, ( m for m in markers if m.centre.polar.length < distance ))
+        if self.noRecursion and (l != alpha or r != alpha):
+            raise DeadEndException()
+        (preDestAngle, preDestDistance) = (l, lPolarL) if abs(destAngle - l) < abs(destAngle - r) else (r, rPolarR)
+        absolutePreDestAngle = orientation + preDestAngle
+        preDest = vAdd((x,y), sMult(preDestDistance+0.3, (cos(radians(absolutePreDestAngle)), sin(radians(absolutePreDestAngle)))))
+        preObj = DestinationObjective(preDest, noRecursion = True)
+        self.setPreObjective(preObj)
+        try:
+            self.reach(markers)
+        except DeadEndException:
+            debug("Caught DeadEndException")
+            self.setPreObjective(None)
+            self.reach(markers)
+        return False
+
+        addAngleInstruction(alpha)
+        addMotorInstruction(toTicks(vLen))
+        return False
+
 class Strategy():
     def __init__(self, robot):
         self.hasToken = False
