@@ -3,7 +3,7 @@ from logger import debug
 
 grab_servo = 1
 turn_servo = 0
-has_token = False
+has_token = True
 
 def getGrabServo():
     return r.servos[0][grab_servo]
@@ -27,13 +27,14 @@ def initServoControl(robot):
     global r
     r = robot
     
-    setGrabServo(85)
-    setTurnServo(14)
+    setGrabServo(100)
+    setTurnServo(15)
     
 def grabTokenLow():
-    if getGrabServo() == 0 and getTurnServo() == 0:
+    if getGrabServo() == 0:
+    	setTurnServo(15)
         setGrabServo(100)
-        setTurnServo(100)
+        setTurnServo(85)
         
         global has_token
         has_token = True
@@ -43,9 +44,9 @@ def grabTokenLow():
         return False
 
 def grabTokenHigh():
-    if getGrabServo() == 0 and getTurnServo() == 0:
-        if getTurnServo() < 100:
-            setTurnServo(100)
+    if getGrabServo() == 0:
+        if getTurnServo() < 85:
+            setTurnServo(85)
         
         setGrabServo(100)
         
@@ -60,7 +61,7 @@ def releaseTokenLow():
     global has_token
     
     if has_token:
-        setTurnServo(0)
+        setTurnServo(15)
         setGrabServo(0)
         
         has_token = False
