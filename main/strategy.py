@@ -75,7 +75,7 @@ class DestinationObjective(Objective):
             self.reach(markers)
         return False
 
-        addAngleInstruction(alpha)
+        addImmediateAngleInstruction(alpha)
         addMotorInstruction(toTicks(vLen))
         return False
 
