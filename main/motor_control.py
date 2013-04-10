@@ -2,15 +2,14 @@ from sr_emulator import *
 from logger import debug
 import time
 import threading
-# from computeChanges import computeCoordinates
+import logic.computeChanges, strategy
 from math import *
 
 instructions = []
 allticks = 0
 currentAngle = None
-changePoints = None
-currentAngle = 0
 changePoints = []
+currentAim = None
 
 class MotorCotrolThread(threading.Thread):
     cI = None
@@ -122,16 +121,6 @@ def getCurrentInstruction():
     global cI
     return cI.speeds, cI.ticks
 
-def addPositionInstruction(coor):
-    global currentAngle
-    global changePoints
-    currentCoor = computeCoordinates(allticks, changePoints, currentAngle)
-    waypoints = [coor[0] - currentCoor[0], coor[1] - currentCoor[1]]
-    angle = degrees(atan2(waypoints[0], waypoints[1]))
-    way = sqrt(waypoints[0]**2 + waypoints[1]**2)
-    addAngleInstruction(angle)
-    addMotorInstruction(way / 80)
-
 def getCurrentAngle():
     global currentAngle
     return currentAngle
@@ -149,3 +138,4 @@ def addAngleInstruction(angle):
     speed = [70, -70] if angle < 0 else [-70, 70]
     addMotorInstruction(speed, ticks)
     currentAngle += angle
+    
