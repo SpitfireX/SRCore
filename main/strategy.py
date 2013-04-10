@@ -1,6 +1,7 @@
 from motor_control import *
 from vector_math import *
 from math import *
+from servo_control import *
 # from computeChanges import *
 
 class Objective():
@@ -78,6 +79,8 @@ class DestinationObjective(Objective):
         addMotorInstruction(toTicks(vLen))
         return False
 
+home = None
+
 class Strategy():
     def __init__(self, robot):
         self.hasToken = False
@@ -86,20 +89,21 @@ class Strategy():
         self.ownPedestals=[]
         self.availablePedstals=[]
         self.stolenPedestals=[]
+        self.deliveredTokens=0
 
     def act(self, markers):
         # self.position = position
         self.markers = markers
 
-        # for m in markers:
-        #     for m2 in markers:
-        #         if -160 <= (m.centre.world.x - m2.centre.world.x) <= 160:
-        #             pedestal = m if m.info.marker_type == MARKER_PEDESTAL else m2
-        #             if isMarkerIn(pedestal, self.availablePedestals):
-        #                 self.availablePedestals.remove(pedestal)
-        #             if isMarkerIn(pedestal, self.ownPedestals):
-        #                 self.ownPedestals.remove(pedestal)
-        #                 self.stolenPedestals.append(pedestal)
+        for m in markers:
+            for m2 in markers:
+                if -160 <= (m.centre.world.x - m2.centre.world.x) <= 160:
+                    pedestal = m if m.info.marker_type == MARKER_PEDESTAL else m2
+                    if isMarkerIn(pedestal, self.availablePedestals):
+                        self.availablePedestals.remove(pedestal)
+                    if isMarkerIn(pedestal, self.ownPedestals):
+                        self.ownPedestals.remove(pedestal)
+                        self.stolenPedestals.append(pedestal)
 
         if self.hasToken:
             delivered = self.deliverToken()
@@ -140,14 +144,16 @@ class Strategy():
         if pedestal == None:
             search()
         else:
-            coor = pedestals(pedestal.info.code)
-            coor[1] -= 420
-            addPositionInstruction(coor)
-            addAngleInstruction(0 - currentAngle)
-            addMotorInstruction([70, 70], 2)
-            ownPedestals.append(pedestal)
-            if isMarkerIn(pedestal, availablePedestals):
-                availablePedestals.remove(pedestal)
+            approachMarker(pedestal, 0.015)
+            retVal = releaseTokenHigh()
+            if retVal == True:
+                if isMarkerIn(pedestal, availablePedestals):
+                    ownPedestals.append(pedestal)
+                    availablePedestals.remove(pedestal)
+                deliveredTokens += 1
+                return True
+
+            return False
 
 def enclosedAngle(v, w):
     "only normalized vectors allowed"

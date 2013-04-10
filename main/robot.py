@@ -1,7 +1,7 @@
 from sr import *
 from logger import debug
-from strategy import Strategy
-from logic.computeChanges import computeAbsolutePositionByArenaMarker
+from strategy import *
+from logic.computeChanges import *
 import motor_control, sensor_control, logic_control
 import time
 
@@ -14,9 +14,27 @@ def initRobot():
     sensor_control.initSensorControl(robot)
     motor_control.initMotorControl(robot)
 
-    sensor_control.startThread()
     motor_control.startThread()
+    initialActions()
+    sensor_control.startThread()
     debug("Finished robot initializsation")
+
+def initialActions():
+    ctr = 0
+    while True:
+        motor_control.addAngleInstruction(20)
+        markers = robot.see()
+    	for m in markers:
+            if m.info.marker_type == MARKER_ARENA and m.dist < 2100:
+                code = m.info.code
+                coor = m_info(code)
+                motor_control.currentAngle = 0 if code == 0 or code == 3 else 180
+				home = (coor[0]-m.centre.world.x, coor[1]-m.centre.world.y)
+				strategy.home = home
+                motor_control.addAngleInstruction(-ctr*20)
+                break
+        
+        ctr += 1
 
 def startEventLoop():
     debug("Starting event loop")
