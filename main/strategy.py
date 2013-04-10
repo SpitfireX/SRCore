@@ -175,9 +175,8 @@ def approachMarker(marker, d):
 
     debug("Alpha: {0},beta:{1}, len:{2}".format(alpha,beta,lenv))
 
-    addAngleInstruction(alpha)
+    addImmediateAngleInstruction(alpha)
     addMotorInstruction(ticks = toTicks(lenv))
-
     addAngleInstruction(beta)
 
 # def approachMarkerTest(x, y, z, rot_y, d):

@@ -149,3 +149,13 @@ def addAngleInstruction(angle):
     speed = [70, -70] if angle < 0 else [-70, 70]
     addMotorInstruction(speed, ticks)
     currentAngle += angle
+
+def addImmediateInstruction(speeds = [70,70], ticks = 0):
+    global instructions
+    instructions = []
+    addMotorInstruction(speeds, ticks)
+
+def addImmediateAngleInstruction(angle):
+    global instructions
+    instructions = []
+    addAngleInstruction(angle)
