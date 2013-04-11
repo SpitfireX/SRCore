@@ -2,14 +2,15 @@ from sr_emulator import *
 from logger import debug
 import time
 import threading
-import logic.computeChanges, strategy
+from logic.computeChanges import computeCoordinates
 from math import *
 
 instructions = []
 allticks = 0
-currentAngle = None
+global currentAngle
+global changePoints
+currentAngle = 0
 changePoints = []
-currentAim = None
 
 class MotorCotrolThread(threading.Thread):
     cI = None
@@ -45,43 +46,55 @@ class MotorCotrolThread(threading.Thread):
 
 class MotorInstruction():
     def __init__(self, speeds, ticks = 0):
-        if (len(speeds) != 2): raise Exception("speeds needs to be a 2-tuple")
+        if (len(speeds) != 2): raise Exception("speeds needs to be a 2-list")
         if (not (ticks > 0)): raise Exception("ticks needs to be positive")
-
         self.speeds = speeds
         self.ticks = ticks
         self.skipped = False
 
     def setup(self):
         global r
-        r.motors[0].target = self.speeds[0] + 10*cmp(self.speeds[0],0)
-        r.motors[1].target = self.speeds[1]
+        r.motors[0].target = self.speeds[0]
+        r.motors[1].target = self.speeds[1] + 10
 
     def run(self):
-        global r
-        global allticks
+        global r, allticks
         if self.ticks > 0:
             debug("Running for " + str(self.ticks) + " ticks")
             rightTicks = leftTicks = 0
-
+    		
+            wait_for(And(r.io[0].input[2].query.d==0, r.io[0].input[3].query.d==0))
             while rightTicks < self.ticks and leftTicks < self.ticks:
                 if self.skipped:
                     break
-
-                res = wait_for(r.io[0].input[3].query.d == 1, r.io[0].input[4].query.d == 1)
+                # TODO: use right pins
+					
+                debug("Waiting for pins")
+                res = wait_for(r.io[0].input[2].query.d == 1, r.io[0].input[3].query.d == 1)
                 if res[1] != None:
                     rightTicks += 1
+                    debug("Right pin triggered")
                     if r.motors[0].target>1 and r.motors[1].target>1:
-                        allticks+=1
+                        allticks += 1
                 else:
                     leftTicks += 1
+                    debug("Left pin triggered")
                     if r.motors[0].target>1 and r.motors[1].target>1:
                         allticks+=1
-            debug("Instruction done")
+                print allticks
+                time.sleep(0.4)
         else:
             debug("Running forever")
             while not self.skipped:
-                time.sleep(0.1)
+                time.sleep(0.4)
+
+def getCurrentAngle():
+	global currentAngle
+	return currentAngle
+	
+def getTicks():
+	global allticks
+	return allticks
 
 def initMotorControl(robot):
     debug("Initializing MotorControl")
@@ -99,7 +112,7 @@ def initMotorControl(robot):
     global w
     # v, w = calibrate(r)
     # checkCalibrating()
-
+	
 def startThread():
     global running
     running = True
@@ -120,22 +133,27 @@ def skipCurrentInstruction():
 def getCurrentInstruction():
     global cI
     return cI.speeds, cI.ticks
-
+	
 def getCurrentAngle():
-    global currentAngle
-    return currentAngle
+	global currentAngle
+	return currentAngle
 
 def addAngleInstruction(angle):
-    global currentAngle
-    global changePoints
-    ticks = angle/(180/16)
-    #print changePoints
-    # coor = computeCoordinates(allticks, changePoints, currentAngle)
-    # recentTicks = allticks if len(changePoints) == 0 else allticks - changePoints[len(changePoints)-1][2]
-    # changePoints.append([currentAngle, coor, recentTicks])
-    if ticks < 1:
-        ticks = 1
-    speed = [70, -70] if angle < 0 else [-70, 70]
-    addMotorInstruction(speed, ticks)
-    currentAngle += angle
-    
+	global currentAngle
+	global changePoints
+	ticks = angle/(90/9)
+	print changePoints
+	#coor = computeCoordinates(allticks, changePoints, currentAngle)
+	#recentTicks = allticks if len(changePoints) == 0 else allticks - changePoints[len(changePoints)-1][2]
+	#changePoints.append([currentAngle, coor, recentTicks])
+	if ticks < 1:
+		ticks = 1
+	speed = [70, -70] if angle < 0 else [-70, 70]
+	addMotorInstruction(speed, ticks)
+	currentAngle += angle
+	time.sleep(0.5)
+
+def driveUntilPressed():
+    addMotorInstruction([30, 30], -1) 
+    wait_for(And(r.io[0].input[6].query.d == 1, r.io[0].input[7].query.d == 1))
+    skipCurrentInstruction()
