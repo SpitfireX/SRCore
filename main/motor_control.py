@@ -55,7 +55,7 @@ class MotorInstruction():
 
     def setup(self):
         global r
-        r.motors[0].target = self.speeds[0] + 10*cmp(self.speeds[0],0)
+        r.motors[0].target = self.speeds[0] # + 10*cmp(self.speeds[0],0)
         r.motors[1].target = self.speeds[1]
 
     def run(self):
@@ -153,9 +153,11 @@ def addAngleInstruction(angle):
 def addImmediateInstruction(speeds = [70,70], ticks = 0):
     global instructions
     instructions = []
+    skipCurrentInstruction()
     addMotorInstruction(speeds, ticks)
 
 def addImmediateAngleInstruction(angle):
     global instructions
+    skipCurrentInstruction()
     instructions = []
     addAngleInstruction(angle)
