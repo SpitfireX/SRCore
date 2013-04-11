@@ -1,5 +1,6 @@
 from time import sleep
 from logger import debug
+from sr_emulator import *
 
 grab_servo = 1
 turn_servo = 0
@@ -9,7 +10,8 @@ def getGrabServo():
     return r.servos[0][grab_servo]
 
 def getTurnServo():
-    return r.servos[0][turn_servo]
+    ios = [r.io[0].input[0], r.io[0].input[4], r.io[0].input[5]]
+    return ios.index(1)
 
 def setGrabServo(position):
     if position >= 14 and position <= 85:
@@ -31,25 +33,29 @@ def initServoControl(robot):
     setTurnServo(15)
     
 def grabTokenLow():
-    if getGrabServo() == 0:
+    if getGrabServo() == 82:
     	setTurnServo(15)
-        setGrabServo(100)
-        setTurnServo(85)
+        setGrabServo(2)
+        setTurnServo(75)
         
         global has_token
         has_token = True
         
+		setTurnServo(50)
+		
         return True
     else:
         return False
 
 def grabTokenHigh():
-    if getGrabServo() == 0:
-        if getTurnServo() < 85:
-            setTurnServo(85)
+    if getGrabServo() == 82:
+        if getTurnServo() != 0:
+            setTurnServo(75)
         
-        setGrabServo(100)
+        setGrabServo(2)
         
+		setTurnServo(50)
+		
         global has_token
         has_token = True
         
@@ -66,6 +72,8 @@ def releaseTokenLow():
         
         has_token = False
         
+		setTurnServo(50)
+		
         return True
     else:
         return False
@@ -78,6 +86,8 @@ def releaseTokenHigh():
         
         has_token = False
         
+		setTurnServo(50)
+		
         return True
     else:
         return False
