@@ -115,27 +115,23 @@ class Strategy(Objective):
             if token:
                 self.hasToken = True
 
+    
     def getToken(self):
-        if self.targetToken:
-            token = filter(lambda t: t.info.code == self.targetToken.info.code, self.markers)
-            if len(token) > 0:
-                arrived = driveTo(token[0])
-                if arrived:
-                    grabToken()
-                    return True
-        else:
-            # TODO: s/home/point in front of tokens
-            arrived = True #driveTo(home)
-            if arrived:
-                debug("Searching for tokens")
-                tokens = filter(isToken, self.markers)
-                if len(tokens) == 0:
-                    debug("No tokens found")
-                    addAngleInstruction(20)
-                else:
-                    self.targetToken = min(tokens, key=lambda t: t.centre.polar.length)
-                    driveTo(self.targetToken)
-            return False
+        do = DestinationObjective(home)
+        self.setPreObjective(do)
+        addAngleInstruction(45)
+        markers = getChanges()
+        if len(markers) > 0:
+            arenmarkers = filter(lambda m: m.info.code == MARKER_ARENA, markers)
+            marker = min(arenmarkers, key=lambda m: m.dist)
+            logic.computeChanges.x, logic.computeChanges.y, motor_control.currentAngle = computeAbsolutePositionByArenaMarker(marker)
+            addAngleInstruction(45)
+            markers = getChanges()
+            if len(markers) > 0:
+                tokens = filter(lambda m: m.info.code == MARKER_TOKEN, markers)
+                marker = min(markers, key=lambda m: m.dist)
+                approachMarker(marker)
+                grabTokenLow()
 
 
 
