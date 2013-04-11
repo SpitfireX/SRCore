@@ -38,7 +38,7 @@ def allowedAngles(l, r, marker, lpl=0, rpl=0, i=0):
     else:
         return allowedAngles(l if l>ml else ml,
                              r if r<mr else mr,
-                             marker
+                             marker,
                              lpl if l>ml else polarL,
                              rpl if r<mr else polarL)
 
@@ -81,8 +81,9 @@ class DestinationObjective(Objective):
 
 home = None
 
-class Strategy():
+class Strategy(Objective):
     def __init__(self, robot):
+        Objective.__init__(self)
         self.hasToken = False
         self.targetToken = None
         self.r = robot
@@ -91,14 +92,14 @@ class Strategy():
         self.stolenPedestals=[]
         self.deliveredTokens=0
 
-    def act(self, markers):
+    def doReach(self, markers):
         # self.position = position
         self.markers = markers
 
         for m in markers:
             for m2 in markers:
                 if -160 <= (m.centre.world.x - m2.centre.world.x) <= 160:
-                    pedestal = m if m.info.marker_type == MARKER_PEDESTAL else m2
+                    pedestal = m.info.code if m.info.marker_type == MARKER_PEDESTAL else m2.info.code
                     if isMarkerIn(pedestal, self.availablePedestals):
                         self.availablePedestals.remove(pedestal)
                     if isMarkerIn(pedestal, self.ownPedestals):
@@ -106,7 +107,7 @@ class Strategy():
                         self.stolenPedestals.append(pedestal)
 
         if self.hasToken:
-            delivered = self.deliverToken()
+            delivered = self.deliverToken(markers)
             if delivered:
                 self.hasToken = False
         else:
@@ -140,23 +141,33 @@ class Strategy():
 
     def deliverToken(self):
         pedestal = findEmptyPedestal()
+        seen = False
+        for m in markers:
+            if m.info.code == pedestal:
+                seen = True
+                pedestal = m # m is the more recent image
+                break
+        if seen:
+            if approachMarker(pedestal, 0.2):
+                addMotorInstruction(ticks = toTicks(0.2))
+                sleep(2)
+                skipCurrentInstruction()
+                releaseTokenHigh()
 
-        if pedestal == None:
-            search()
-        else:
-            approachMarker(pedestal, 0.015)
-            retVal = releaseTokenHigh()
-            if retVal == True:
-                if isMarkerIn(pedestal, availablePedestals):
-                    ownPedestals.append(pedestal)
-                    availablePedestals.remove(pedestal)
-                deliveredTokens += 1
+                self.ownPedestals.append(pedestal)
+                self.availablePedestals.remove(pedestal)
+                self.deliveredTokens += 1
                 return True
-
+        else:
+            preObj = DestinationObjective(pedestals(pedestal))
+            self.setPreObjective(preObj)
             return False
 
 def enclosedAngle(v, w):
     "only normalized vectors allowed"
+    # generators are unsubscriptable
+    v = list(v)
+    w = list(w)
     return degrees(acos(sProd(v,w)))*cmp(v[2]*w[0] - v[0]*w[2],0.)
 
 def approachMarker(marker, d):
@@ -165,32 +176,25 @@ def approachMarker(marker, d):
     debug("Coords: ({0},{1},{2})".format(coords.x,coords.y,coords.z))
     rot_y = radians(marker.orientation.rot_y)
     debug("rot_y: " + str(rot_y))
-    n = (-sin(rot_y), 0, -cos(rot_y))
-    v = vAdd((coords.x, coords.y, coords.z), sMult(d, n))
+    n = [-sin(rot_y), 0, -cos(rot_y)]
+    v = vAdd([coords.x, coords.y, coords.z], sMult(d, n))
     lenv = vLen(v)
     vn = sMult(1./lenv, v)
 
-    alpha = enclosedAngle((0,0,1.), vn)
+    alpha = enclosedAngle([0,0,1.], vn)
     beta = enclosedAngle(vn,sMult(-1.,n))
 
     debug("Alpha: {0},beta:{1}, len:{2}".format(alpha,beta,lenv))
 
-    addImmediateAngleInstruction(alpha)
-    addMotorInstruction(ticks = toTicks(lenv))
-    addAngleInstruction(beta)
-
-# def approachMarkerTest(x, y, z, rot_y, d):
-#     # Approach a given marker to distance d on its normal
-#     rot_y = radians(rot_y)
-#     n = (-sin(rot_y), 0, -cos(rot_y))
-#     v = vAdd((x, 0, z), sMult(d, n))
-#     lenv = vLen(v)
-#     vn = sMult(1./lenv, v)
-
-#     alpha = enclosedAngle((0,0,1.), vn)
-#     beta = enclosedAngle(vn,sMult(-1.,n))
-
-#     print("Alpha: {0},beta:{1}, len:{2}".format(alpha,beta,lenv))
+    # 0.06 is a little more than one tick, 10 is fairly random
+    if alpha < 5 and beta < 5 and lenv < 0.06:
+        return True
+    else:
+        dist = toTicks(lenv)
+        addImmediateAngleInstruction(alpha)
+        if dist > d: addMotorInstruction(ticks = dist)
+        addAngleInstruction(beta)
+        return False
 
 def isMarkerIn(m, list):
     for l in list:
