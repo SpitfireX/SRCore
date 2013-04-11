@@ -62,11 +62,11 @@ class MotorInstruction():
             debug("Running for " + str(self.ticks) + " ticks")
             rightTicks = leftTicks = 0
 
-            wait_for(And(r.io[0].input[2].query.d==0, r.io[0].input[3].query.d==0))
             while rightTicks < self.ticks and leftTicks < self.ticks:
                 if self.skipped:
                     break
 
+                wait_for(And(r.io[0].input[2].query.d==0, r.io[0].input[3].query.d==0))
                 res = wait_for(r.io[0].input[2].query.d == 1, r.io[0].input[3].query.d == 1)
                 if res[1] != None:
                     rightTicks += 1
