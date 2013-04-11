@@ -1,6 +1,5 @@
 from sr_emulator import *
 from logger import debug
-import time
 import threading
 from logic.computeChanges import computeCoordinates
 from math import *
@@ -55,7 +54,7 @@ class MotorInstruction():
     def setup(self):
         global r
         r.motors[0].target = self.speeds[0]
-        r.motors[1].target = self.speeds[1] + 10
+        r.motors[1].target = self.speeds[1]
 
     def run(self):
         global r, allticks
@@ -67,34 +66,29 @@ class MotorInstruction():
             while rightTicks < self.ticks and leftTicks < self.ticks:
                 if self.skipped:
                     break
-                # TODO: use right pins
 
-                debug("Waiting for pins")
                 res = wait_for(r.io[0].input[2].query.d == 1, r.io[0].input[3].query.d == 1)
                 if res[1] != None:
                     rightTicks += 1
-                    debug("Right pin triggered")
                     if r.motors[0].target>1 and r.motors[1].target>1:
                         allticks += 1
                 else:
                     leftTicks += 1
-                    debug("Left pin triggered")
                     if r.motors[0].target>1 and r.motors[1].target>1:
                         allticks+=1
-                print allticks
-                time.sleep(0.4)
         else:
             debug("Running forever")
             while not self.skipped:
-                time.sleep(0.4)
+                time.sleep(0.1)
+        debug("Instruction done")
 
 def getCurrentAngle():
-	global currentAngle
-	return currentAngle
+    global currentAngle
+    return currentAngle
 
 def getTicks():
-	global allticks
-	return allticks
+    global allticks
+    return allticks
 
 def initMotorControl(robot):
     debug("Initializing MotorControl")
@@ -135,8 +129,8 @@ def getCurrentInstruction():
     return cI.speeds, cI.ticks
 
 def getCurrentAngle():
-	global currentAngle
-	return currentAngle
+    global currentAngle
+    return currentAngle
 
 def addAngleInstruction(angle):
     global currentAngle
