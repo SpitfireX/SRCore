@@ -1,22 +1,24 @@
 from math import *
 from sr_emulator import MARKER_ARENA
+from strategy import *
+import motor_control
 
 global changes
 global markers
 global ios
 global r_marker
-x = y = None # Position des Roboters.
+x = y = 0 # Position des Roboters.
 
 
-pedestals = {32:(2000, 6000),
-             33:(4000, 6000),
-             34:(6000, 6000),
-             35:(2000, 4000),
-             36:(4000, 4000),
-             37:(6000, 4000),
-             38:(2000, 2000),
-             39:(4000, 2000),
-             40:(6000, 2000)}
+pedestals = {32:(2, 6),
+             33:(4, 6),
+             34:(6, 6),
+             35:(2, 4),
+             36:(4, 4),
+             37:(6, 4),
+             38:(2, 2),
+             39:(4, 2),
+             40:(6, 2)}
 
 m_info = {6:(0,1,0), 5:(0,2,0), 4:(0,3,0), 3:(0,4,0), 2:(0,5,0), 1:(0,6,0), 0:(0,7,0),
           7:(1,0,-90), 8:(2,0,-90), 9:(3,0,-90), 10:(4,0,-90), 11:(5,0,-90), 12:(6,0,-90), 13:(7,0,-90),
@@ -31,85 +33,11 @@ def getCoordinates():
 def computeAbsolutePositionByArenaMarker(marker):
     if marker.info.marker_type != MARKER_ARENA: raise Exception("Wrong marker type.")
     (xm,ym,phim) = m_info[marker.info.code]
+    x, y, motor_control.currentAngle = xm, ym, phim
     alpha = radians(marker.orientation.rot_y - marker.rot_y - phim)
     return ( xm + marker.dist * cos(alpha),
              ym + marker.dist * sin(alpha),
              (phim - marker.orientation.rot_y) % 360 - 180 )
-
-def computeMarkers(robot, ms, activeToken=None, side=None):
-    r=robot
-    markers=ms
-
-    global r_marker
-    r_marker=[]
-
-    global x
-    global y
-    global m_info
-    global pedestals
-
-    for m in markers:
-        if m.info.marker_type == MARKER_ARENA:
-            (x, y, _) = computeAbsolutePositionByArenaMarker(m)
-            motor_control.changePoints.append(motor_control.getCurrentAngle(), [x, y])
-
-        elif m.info.marker_type == MARKER_ROBOT:
-            global r_marker
-            if len(r_marker) == 0:
-                r_marker=[m.info.code, m.dist * 1000]
-
-            else:
-                if m.info.code == r_marker[0]:
-                    distsOld = r_markers[1]
-                    distsNew = m.dist * 1000
-
-                    change = distsNew-distsOld
-
-                    if change > 0:
-                        global r_marker
-                        r_marker=[]
-                        continue
-
-                    else:
-                        pointdist=math.degrees(tan(radians(m.orientation.rot_y))*m.dist*1000)
-                        if pointdist <= 450:
-                            speeds, duration=motor_control.getCurrentInstruction()
-                            skipCurrentInstruction()
-                            angle = -m.orientation.rot_y - 10 if m.orientation.rot_y > 0 else -m.orientation.rot_y +10
-                            addAngleInstruction(angle)
-                            addMotorInstruction(r.motors, speeds, duration)
-
-        elif m.info.marker_type == MARKER_PEDESTAL:
-            if activeToken != None:
-                currentAngle = motor_control.getCurrentAngle()
-                coor = pedestals(activeToken)
-                xped = coor[0]
-                yped = coor[1]
-                if side == "down":
-                    y -= m.dist * 1000 if currentAngle == 0 else cos(radians(m.orientation.rot_y)) * m.dist * 1000
-                    x -= 0 if currentAngle == 0 else cos(radians(m.orientation.rot_y)) * (x - xped) * 1000
-
-                elif side == "up":
-                    y += m.dist * 1000 if currentAngle == 0 else cos(radians(m.orientation.rot_y)) * m.dist * 1000
-                    x -= 0 if currentAngle == 0 else cos(radians(m.orientation.rot_y)) * (x - xped) * 1000
-
-                elif side == "right":
-                    x += m.dist * 1000 if currentAngle == 0 else cos(radians(m.orientation.rot_y)) * m.dist * 1000
-                    y -= 0 if currentAngle == 0 else cos(radians(m.orientation.rot_y)) * (y - yped) * 1000
-
-                else:
-                    x -= m.dist * 1000 if currentAngle == 0 else cos(radians(m.orientation.rot_y)) * m.dist * 1000
-                    y -= 0 if currentAngle == 0 else cos(radians(m.orientation.rot_y)) * (y - yped) * 1000
-
-                #addTokenInstruction(currentToken, xped, yped, x, y)
-
-            else:
-                for m2 in marker:
-                    diff = m2.dist * 1000 - m.dist * 1000
-                    #if diff <= 10 or diff <= -10:
-                    #onPedestals.append(m2)
-                    #break
-
 
 def computeCoordinates(allticks, changePoints=[], currentAngle=0):
     print changePoints
@@ -140,8 +68,8 @@ def computeCoordinates(allticks, changePoints=[], currentAngle=0):
 
         else:
             currentTicks = allticks - changePoints[len(changePoints) - 1][2]
-            xpart = cos(math.radians(currentAngle)) * currentTicks * 80 # in mm
-            ypart = sin(math.radians(currentAngle)) * currentTicks * 80    # " "
+            xpart = cos(radians(currentAngle)) * currentTicks * 80 # in mm
+            ypart = sin(radians(currentAngle)) * currentTicks * 80    # " "
 
             if currentAngle > 0 and currentAngle < 90:
                 xpart *= -1
