@@ -1,8 +1,4 @@
-# To do:
-# - ownTokens in strategy.py
-# - Funktioniert addAngleInstruction und approachMarker jetzt richtig??
-# - UNBEDINGT: Testen der eigenen Koordinaten-Bestimmung
-# - EBENFALLS UNEDINGT: Verstehen, wie DestinationObjective() funktioniert
+
 from sr import *
 from logger import debug
 from strategy import *
