@@ -4,99 +4,80 @@ from sr_emulator import *
 
 grab_servo = 1
 turn_servo = 0
-has_token = True
+r = None
 
 def getGrabServo():
+    global r
     return r.servos[0][grab_servo]
 
 def getTurnServo():
-    ios = [r.io[0].input[0], r.io[0].input[4], r.io[0].input[5]]
-    return ios.index(1)
+    global r
+    ios = [r.io[0].input[0].d, r.io[0].input[4].d, r.io[0].input[5].d]
+    if (1 in ios):
+        return ios.index(1)
+    else:
+        return 10
 
 def setGrabServo(position):
-    if position >= 14 and position <= 85:
+    global r
+    if position >= 14 and position <= 82:
         r.servos[0][grab_servo] = position
     else:
         debug("Invalid servo position")
-
+    
 def setTurnServo(position):
-    if position >= 14 and position <= 80:
-        r.servos[0][turn_servo] = position
+    global r
+    if position >= 15 and position <= 75:
+        if position == 75:
+            r.servos[0][turn_servo] = 65 
+            wait_for(r.io[0].input[0].query.d) 
+			
+        elif position == 50:
+            if r.io[0].input[5].d == 1:
+                r.servos[0][turn_servo] = 65
+            elif r.io[0].input[0].d == 1:
+                r.servos[0][turn_servo] = 8
+            wait_for(r.io[0].input[4].query.d)
+			
+        else:
+            r.servos[0][turn_servo] = 8
+            wait_for(r.io[0].input[5].query.d)
+			
+        r.servos[0][turn_servo] = 40
     else:
         debug("Invalid servo position")
 
 def initServoControl(robot):
     global r
     r = robot
-
-    setGrabServo(100)
-    setTurnServo(15)
-
-def grabTokenLow():
-    if getGrabServo() == 82:
-        setTurnServo(15)
-        setGrabServo(2)
-        setTurnServo(75)
-
-        global has_token
-        has_token = True
-
+    if getTurnServo() != 0:
         setTurnServo(50)
-
-        return True
-    else:
-        return False
+    
+def grabTokenLow():
+    while True:
+        if getTurnServo() != 2:
+            setTurnServo(15)
+            setGrabServo(13)
+        if r.io[0].input[1] == 1:
+            setTurnServo(50)
+            break
+        else:
+            setGrabServo(82)
 
 def grabTokenHigh():
-    if getGrabServo() == 82:
-        if getTurnServo() != 0:
-            setTurnServo(75)
+    while True:
+        setGrabServo(13)
+        if r.io[0].input[1] == 1:
+            break
+        else:
+            setGrabServo(82)
 
-        setGrabServo(2)
-
-        setTurnServo(50)
-
-        global has_token
-        has_token = True
-
-        return True
-    else:
-        return False
 
 def releaseTokenLow():
-    global has_token
-
-    if has_token:
-        setTurnServo(15)
-        setGrabServo(0)
-
-        has_token = False
-
-        setTurnServo(50)
-
-        return True
-    else:
-        return False
+    setTurnServo(15)
+    setGrabServo(82)
+    setTurnServo(50)
 
 def releaseTokenHigh():
-    global has_token
-
-    if has_token:
-        setGrabServo(0)
-
-        has_token = False
-
-        setTurnServo(50)
-
-        return True
-    else:
-        return False
-
-def interpolateServo(value, setFunction, getFunction, steps=10, time=1):
-    svalue = getFunction()
-
-    for step in range(steps):
-        setFunction(svalue + step*((value-svalue)/steps))
-        sleep(time/steps)
-
-    setFunction(value)
+    if r.io[0].input[1].d == 1:
+        setGrabServo(82)
