@@ -2,6 +2,7 @@ from motor_control import *
 from vector_math import *
 from math import *
 from servo_control import *
+from sensor_control import *
 # from computeChanges import *
 
 class Objective():
@@ -79,34 +80,41 @@ class DestinationObjective(Objective):
         addMotorInstruction(toTicks(vLen))
         return False
 
-home = None
+home = homenumber = None
+ownPedestals=[]
+availablePedstals=[]
+stolenPedestals=[]
+occupiedPedestals=[]
 
 class Strategy(Objective):
     def __init__(self, robot):
+        global homenumber
         Objective.__init__(self)
         self.hasToken = False
         self.targetToken = None
         self.r = robot
-        self.ownPedestals=[]
-        self.availablePedstals=[]
-        self.stolenPedestals=[]
         self.deliveredTokens=0
-
+        
+        self.pedestalsToClaim = [32, 35, 38, 34, 37] if homenumber == 0 else [34, 37, 40, 33, 32] if homenumber == 1 else [40, 37, 34, 39, 38] if homenumber == 2 else [38, 35, 32, 39, 40]
+    
     def doReach(self, markers):
+        claimPedestal = self.pedestalsToClaim.pop(0)
+        
         # self.position = position
+        global ownPedestals, availablePedestals, stolenPedestals, occupiedPedestals, home
         self.markers = markers
-
+        
         for m in markers:
             for m2 in markers:
-                if -160 <= (m.centre.world.x - m2.centre.world.x) <= 160:
+                if -0.16 <= (m.centre.world.z - m2.centre.world.z) <= 0.16 and m.info.code not in ownTokens:
                     pedestal = m.info.code if m.info.marker_type == MARKER_PEDESTAL else m2.info.code
-                    if isMarkerIn(pedestal, self.availablePedestals):
-                        self.availablePedestals.remove(pedestal)
-                    if isMarkerIn(pedestal, self.ownPedestals):
-                        self.ownPedestals.remove(pedestal)
-                        self.stolenPedestals.append(pedestal)
+                    if isMarkerIn(pedestal, availablePedestals):
+                        availablePedestals.remove(pedestal)
+                    if isMarkerIn(pedestal, ownPedestals):
+                        ownPedestals.remove(pedestal)
+                        stolenPedestals.append(pedestal)
 
-        if self.hasToken:
+        if self.r.io[0].input[1].d == 1:
             delivered = self.deliverToken(markers)
             if delivered:
                 self.hasToken = False
@@ -119,25 +127,26 @@ class Strategy(Objective):
     def getToken(self):
         do = DestinationObjective(home)
         self.setPreObjective(do)
-        addAngleInstruction(45)
-        markers = getChanges()
-        if len(markers) > 0:
-            arenmarkers = filter(lambda m: m.info.code == MARKER_ARENA, markers)
-            marker = min(arenmarkers, key=lambda m: m.dist)
-            logic.computeChanges.x, logic.computeChanges.y, motor_control.currentAngle = computeAbsolutePositionByArenaMarker(marker)
-            addAngleInstruction(45)
-            markers = getChanges()
+        while True:
+            addAngleInstruction(30)
+            markers = getMarkers()
             if len(markers) > 0:
-                tokens = filter(lambda m: m.info.code == MARKER_TOKEN, markers)
-                marker = min(markers, key=lambda m: m.dist)
-                approachMarker(marker)
-                grabTokenLow()
-
-
+                arenmarkers = filter(lambda m: m.info.code == MARKER_ARENA, markers)
+                marker = min(arenmarkers, key=lambda m: m.dist)
+                logic.computeChanges.x, logic.computeChanges.y, motor_control.currentAngle = computeAbsolutePositionByArenaMarker(marker)
+                while True:
+                    addAngleInstruction(30)
+                    markers = getMarkers()
+                    if len(markers) > 0:
+                        tokens = filter(lambda m: m.info.code == MARKER_TOKEN, markers)
+                        marker = min(markers, key=lambda m: m.dist)
+                        approachMarker(marker)
+                        grabTokenLow()
 
     def deliverToken(self):
         pedestal = findEmptyPedestal()
         seen = False
+        markers = getMarkers()
         for m in markers:
             if m.info.code == pedestal:
                 seen = True
@@ -145,9 +154,7 @@ class Strategy(Objective):
                 break
         if seen:
             if approachMarker(pedestal, 0.2):
-                addMotorInstruction(ticks = toTicks(0.2))
-                sleep(2)
-                skipCurrentInstruction()
+                motor_control.driveUntilPressed()
                 releaseTokenHigh()
 
                 self.ownPedestals.append(pedestal)
@@ -199,6 +206,7 @@ def isMarkerIn(m, list):
     return False
 
 def findEmptyPedestal():
+    
     markers = getMarkers()
     pedestals = filter(isPedestal, markers)
     while len(pedestals) != 0 and len(markers) != 0:
